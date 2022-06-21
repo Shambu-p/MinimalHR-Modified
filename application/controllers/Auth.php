@@ -10,9 +10,11 @@ class Auth extends REST_Controller {
     private String $SecretKey = "my_secret_key";
 
     function __construct() {
+
 		header('Access-Control-Allow-Origin: *');
-    	parent::__construct();
-    	$this->load->helper("jwt_helper");
+		parent::__construct();
+		$this->load->model("AuthModel");
+
 	}
 
 	function login_post() {
@@ -32,7 +34,7 @@ class Auth extends REST_Controller {
 				return;
 			}
 
-			$email_matched_user["token"] = $this->tokenStringGenerator($email_matched_user);
+			$email_matched_user["token"] = $this->AuthModel->tokenStringGenerator($email_matched_user);
 			unset($email_matched_user["password"]);
 			$this->response($email_matched_user, 200);
 
@@ -53,8 +55,7 @@ class Auth extends REST_Controller {
 				return;
 			}
 
-            $jwt = new JWT();
-            $this->response($jwt->decode($this->input->post("token"), $this->SecretKey, 'HS256'), 200);
+            $this->response($this->AuthModel->checkAuth($this->input->post("token")), 200);
 
         } catch (Exception $error) {
 			$this->response(["message" => "Exception: " . $error->getMessage()], 200);
@@ -66,10 +67,4 @@ class Auth extends REST_Controller {
 //        Response::prepare([]);
     }
 
-    function tokenStringGenerator($data) {
-
-        $jwt = new JWT();
-        return $jwt->encode($data, $this->SecretKey, 'HS256');
-
-    }
 }

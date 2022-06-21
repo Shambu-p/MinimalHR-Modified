@@ -3,6 +3,11 @@
 $config = array(
 	'Employees/register_employee' => [
 		[
+			'field' => 'token',
+			'label' => 'token',
+			'rules' => 'required'
+		],
+		[
 			'field' => 'full_name',
 			'label' => 'full_name',
 			'rules' => 'required|regex_match[/(\w\s?)+/]|max_length[100]|min_length[10]'
@@ -45,9 +50,9 @@ $config = array(
 	],
 	'Employees/change_password' => [
 		[
-			'field' => 'employee_id',
-			'label' => 'employee_id',
-			'rules' => 'required|integer'
+			'field' => 'token',
+			'label' => 'token',
+			'rules' => 'required'
 		],
 		[
 			'field' => 'old_password',
@@ -84,6 +89,57 @@ $config = array(
 			'rules' => 'required'
 		]
 	],
+	'Employees/application_detail' => [
+		[
+			'field' => 'application_number',
+			'label' => 'application_number',
+			'rules' => 'required|integer'
+		],
+		[
+			'field' => 'application_number',
+			'label' => 'application_number',
+			'rules' => 'required|integer'
+		]
+	],
+	'Employees/application_list' => [
+		[
+			'field' => 'token',
+			'label' => 'token',
+			'rules' => 'required'
+		],
+		[
+			'field' => 'application_status',
+			'label' => 'application_status',
+			'rules' => 'in_list[pending,viewed,accepted,rejected]'
+		],
+		[
+			'field' => 'vacancy_id',
+			'label' => 'vacancy_id',
+			'rules' => 'integer'
+		],
+		[
+			'field' => 'department_id',
+			'label' => 'department_id',
+			'rules' => 'integer'
+		]
+	],
+	'Employees/employee_list' => [
+		[
+			'field' => 'token',
+			'label' => 'token',
+			'rules' => 'required'
+		],
+		[
+			'field' => 'status',
+			'label' => 'status',
+			'rules' => 'in_list[active,disabled,suspended]'
+		],
+		[
+			'field' => 'department_id',
+			'label' => 'department_id',
+			'rules' => 'integer'
+		]
+	],
 	'Employees/change_application_status' => [
 		[
 			'field' => 'token',
@@ -96,7 +152,24 @@ $config = array(
 			'rules' => 'required|in_list[accepted,rejected,viewed,pending]'
 		],
 	],
+	'Employees/employee_detail' => [
+		[
+			'field' => 'token',
+			'label' => 'token',
+			'rules' => 'required'
+		],
+		[
+			'field' => 'employee_id',
+			'label' => 'employee_id',
+			'rules' => 'integer'
+		]
+	],
 	'Department/create' => [
+		[
+			'field' => 'token',
+			'label' => 'token',
+			'rules' => 'required'
+		],
 		[
 			'field' => 'name',
 			'label' => 'name',
@@ -109,6 +182,11 @@ $config = array(
 		]
 	],
 	'Department/update' => [
+		[
+			'field' => 'token',
+			'label' => 'token',
+			'rules' => 'required'
+		],
 		[
 			'field' => 'department_id',
 			'label' => 'department_id',

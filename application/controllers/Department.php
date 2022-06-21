@@ -10,8 +10,8 @@ class Department extends REST_Controller {
 	function __construct() {
 
 		parent::__construct();
-//		$this->load->database();
 		$this->load->model("DepartmentModel");
+		$this->load->model("AuthModel");
 
 	}
 
@@ -33,6 +33,13 @@ class Department extends REST_Controller {
 			], 500);
 			return;
 		}
+
+		// for time being authorization is not working
+//		$user = $this->AuthModel->checkAuth($this->input->post("token"));
+//		if(!$user["is_admin"]){
+//			$this->response(["message" => "Access Denied!"], 200);
+//			return;
+//		}
 
 		if(isset($_POST["department_head"])){
 
@@ -62,7 +69,6 @@ class Department extends REST_Controller {
 	 * passed to this request handler.
 	 */
 	function update_post(){
-//		$this->load->model("")
 
 		if(!$this->form_validation->run()){
 			$this->response([
@@ -70,6 +76,13 @@ class Department extends REST_Controller {
 			], 500);
 			return;
 		}
+
+		// for time being authorization is not working
+//		$user = $this->AuthModel->checkAuth($this->input->post("token"));
+//		if(!$user["is_admin"]){
+//			$this->response(["message" => "Access Denied!"], 200);
+//			return;
+//		}
 
 		return $this->response(
 			$this->DepartmentModel->updateDepartment(
@@ -80,6 +93,14 @@ class Department extends REST_Controller {
 			200
 		);
 
+	}
+
+	function all_get(){
+		$this->response((array) $this->DepartmentModel->getAll(), 200);
+	}
+
+	function department_detail_get(int $id){
+		$this->response($this->DepartmentModel->departmentDetail($id), 200);
 	}
 
 }

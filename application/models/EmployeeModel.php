@@ -124,8 +124,30 @@ class EmployeeModel extends CI_Model {
 		return $this->db->get_where($this->table_name, ['email' => $email])->result();
 	}
 
-	function getAll(){
-		return $this->db->get($this->table_name)->result();
+	function getApplications($request){
+
+		$condition = [];
+		if(isset($request["application_status"])){
+			$condition["status"] = $request["application_status"];
+		}
+
+		if(isset($request["department_id"])){
+			$condition["department_id"] = $request["department_id"];
+		}
+
+		if(isset($request["vacancy_id"])){
+			$condition["vacancy_id"] = $request["vacancy_id"];
+		}
+
+		return (array) $this->db->get_where($this->table_name, $condition)->result();
+
+	}
+
+	function getApplication(int $application_number) {
+
+		$result = $this->db->get_where($this->table_name, ["application_number" => $application_number])->result();
+		return sizeof($result) ? $result[0] : [];
+
 	}
 
 	function getEmployee($id){
@@ -225,6 +247,20 @@ class EmployeeModel extends CI_Model {
 		}
 
 		return $final_array;
+
+	}
+
+	function byApplicationNumber(int $application_number){
+
+		$application = (array) $this->db->get_where($this->table_name, ["application_number" => $application_number])->result();
+		if(sizeof($application)){
+			return [];
+		}
+
+		return [
+			"applicant" => $application[0],
+			"address" => (array) $this->db->get_where("address", ["employee_id" => $application[0]["id"]])->result()
+		];
 
 	}
 

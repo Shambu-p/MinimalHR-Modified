@@ -20,8 +20,8 @@ class AccountModel extends CI_Model {
 	 */
 	function changePassword($employee_id, $old_password, $new_password){
 
-		$employee = $this->db->get_where($this->table_name, ["employee_id" => $employee_id])->result();
-		if(sizeof($employee) < 1){
+		$employee = (array) $this->db->get_where($this->table_name, ["employee_id" => $employee_id])->result();
+		if(!sizeof($employee)){
 			throw new Exception("account not found");
 		}
 
@@ -96,6 +96,23 @@ class AccountModel extends CI_Model {
 			"account" => $result,
 			"detail" => $detail[0]
 		]: [];
+
+	}
+
+	function allAccounts($request){
+
+		$query = $this->db->select("*")->from($this->table_name . " A")
+			->join("employee E", 'E.id = A.employee_id');
+
+		if(isset($request["status"])){
+			$query->where("A.status", $request["status"]);
+		}
+
+		if(isset($request["department_id"])){
+			$query->where("E.department_id", $request["department_id"]);
+		}
+
+		return (array) $query->get()->result();
 
 	}
 

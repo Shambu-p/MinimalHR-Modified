@@ -71,7 +71,14 @@ class DepartmentModel extends CI_Model {
 	}
 
 	function getAll() {
-		return $this->db->get($this->table_name);
+		return (array) $this->db->get($this->table_name)->result();
+	}
+
+	function departmentDetail(int $department_id){
+
+		$result = $this->db->get_where($this->table_name, ["id" => $department_id])->result();
+		return sizeof($result) ? (array) $result[0] : [];
+
 	}
 
 }
