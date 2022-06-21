@@ -27,39 +27,44 @@ class Department extends REST_Controller {
 	 */
 	function create_post(){
 
-		if(!$this->form_validation->run()){
-			$this->response([
-				"message" => validation_errors()
-			], 500);
-			return;
-		}
+		try{
 
-		// for time being authorization is not working
-//		$user = $this->AuthModel->checkAuth($this->input->post("token"));
-//		if(!$user["is_admin"]){
-//			$this->response(["message" => "Access Denied!"], 200);
-//			return;
-//		}
+			if(!$this->form_validation->run()){
+				$this->response([
+					"message" => validation_errors()
+				], 500);
+				return;
+			}
 
-		if(isset($_POST["department_head"])){
+			$user = $this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token"));
+			if(!$user["is_admin"]){
+				$this->response(["message" => "Access Denied!"], 200);
+				return;
+			}
 
-			return $this->response(
-				$this->DepartmentModel->createDepartment(
-					$this->input->post("name"),
-					$this->input->post("department_head")
-				),
-				200
-			);
+			if(isset($_POST["department_head"])){
 
-		}else{
+				$this->response(
+					$this->DepartmentModel->createDepartment(
+						$this->input->post("name"),
+						$this->input->post("department_head")
+					),
+					200
+				);
 
-			return $this->response(
-				$this->DepartmentModel->createDepartment(
-					$this->input->post("name")
-				),
-				200
-			);
+			}else{
 
+				$this->response(
+					$this->DepartmentModel->createDepartment(
+						$this->input->post("name")
+					),
+					200
+				);
+
+			}
+
+		} catch(Exception $ex){
+			$this->response(["message" => $ex->getMessage()], 200);
 		}
 
 	}
@@ -70,28 +75,33 @@ class Department extends REST_Controller {
 	 */
 	function update_post(){
 
-		if(!$this->form_validation->run()){
-			$this->response([
-				"message" => validation_errors()
-			], 500);
-			return;
+		try{
+
+			if(!$this->form_validation->run()){
+				$this->response([
+					"message" => validation_errors()
+				], 500);
+				return;
+			}
+
+			$user = $this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token"));
+			if(!$user["is_admin"]){
+				$this->response(["message" => "Access Denied!"], 200);
+				return;
+			}
+
+			$this->response(
+				$this->DepartmentModel->updateDepartment(
+					$this->input->post("department_id"),
+					isset($_POST["department_name"]) ? $this->input->post("department_name") : null,
+					isset($_POST["department_head"]) ? $this->input->post("department_head") : null
+				),
+				200
+			);
+
+		} catch(Exception $ex){
+			$this->response(["message" => $ex->getMessage()], 200);
 		}
-
-		// for time being authorization is not working
-//		$user = $this->AuthModel->checkAuth($this->input->post("token"));
-//		if(!$user["is_admin"]){
-//			$this->response(["message" => "Access Denied!"], 200);
-//			return;
-//		}
-
-		return $this->response(
-			$this->DepartmentModel->updateDepartment(
-				$this->input->post("department_id"),
-				isset($_POST["department_name"]) ? $this->input->post("department_name") : null,
-				isset($_POST["department_head"]) ? $this->input->post("department_head") : null
-			),
-			200
-		);
 
 	}
 

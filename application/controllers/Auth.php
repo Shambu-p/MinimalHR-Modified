@@ -14,6 +14,7 @@ class Auth extends REST_Controller {
 		header('Access-Control-Allow-Origin: *');
 		parent::__construct();
 		$this->load->model("AuthModel");
+//		$this->load->library("Authorization_Token");
 
 	}
 
@@ -34,8 +35,9 @@ class Auth extends REST_Controller {
 				return;
 			}
 
-			$email_matched_user["token"] = $this->AuthModel->tokenStringGenerator($email_matched_user);
 			unset($email_matched_user["password"]);
+			$email_matched_user["token"] = $this->authorization_token->generateToken($email_matched_user);
+
 			$this->response($email_matched_user, 200);
 
         } catch (Exception $ex) {
@@ -55,7 +57,7 @@ class Auth extends REST_Controller {
 				return;
 			}
 
-            $this->response($this->AuthModel->checkAuth($this->input->post("token")), 200);
+            $this->response($this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token")), 200);
 
         } catch (Exception $error) {
 			$this->response(["message" => "Exception: " . $error->getMessage()], 200);

@@ -5,15 +5,23 @@ class AuthModel extends CI_Model {
 	private String $SecretKey = "my_secret_key";
 
 	/**
+	 * @param $auth_object
 	 * @param string $token
-	 * 			authentication string to be decrypted
+	 *            authentication string to be decrypted
 	 * @return array
-	 * 			returns the decrypted user from authentication string
+	 *            returns the decrypted user from authentication string
+	 * @throws Exception
 	 */
-	function checkAuth(string $token) {
+	function checkAuth($auth_object, string $token) {
 
-		$jwt = new JWT();
-		return json_decode($jwt->decode($token, $this->SecretKey, 'HS256'));
+		$result = (array) $auth_object->validateToken($this->input->post("token"));
+		if(!$result["status"]){
+			throw new Exception($result["message"]);
+		}
+
+		return (array) $result["data"];
+//		$jwt = new JWT();
+//		return json_decode($jwt->decode($token, $this->SecretKey, 'HS256'));
 
 	}
 

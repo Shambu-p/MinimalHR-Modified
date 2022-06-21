@@ -25,7 +25,7 @@ class AccountModel extends CI_Model {
 			throw new Exception("account not found");
 		}
 
-		$account = $employee[0];
+		$account = (array) $employee[0];
 		if(!password_verify($old_password, $account["password"])){
 			throw new Exception("incorrect password");
 		}

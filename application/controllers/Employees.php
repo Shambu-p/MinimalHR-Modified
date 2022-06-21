@@ -1,5 +1,5 @@
 <?php
-error_reporting(!E_DEPRECATED );
+//error_reporting(!E_DEPRECATED );
 
 require APPPATH . '/libraries/REST_Controller.php';
 use Restserver\Libraries\REST_Controller;
@@ -31,60 +31,67 @@ class Employees extends REST_Controller {
 	// CgzTTOk4
 	function register_employee_post(){
 
-		if(!$this->form_validation->run()){
+		try{
+
+			if(!$this->form_validation->run()){
+				$this->response([
+					"message" => validation_errors()
+				], 200);
+				return;
+			}
+
+			$user = $this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token"));
+			if(!$user["is_admin"]){
+				$this->response(["message" => "Access Denied!"], 200);
+				return;
+			}
+
+			$this->load->library('upload', [
+				'upload_path' => './uploads/profile_pictures',
+				'file_name' => 'profile_pic_' . $this->input->post("email") . '.png',
+				'allowed_types' => ['jpg', 'png', 'ico', 'jpeg'],
+				'max_size' => 1000
+			]);
+
+			if(!$this->upload->do_upload('profile_picture')){
+				$this->response(
+					["message" => "image file: " . $this->upload->display_errors()],
+					200
+				);
+				return;
+			}else{
+				$profile_upload = $this->upload->data();
+			}
+
+			$this->upload = null;
+			$this->load->library('upload', [
+				'upload_path' => './uploads/documents',
+				'file_name' => 'application_doc_'.$this->input->post("email").'.zip',
+				'allowed_types' => ['zip'],
+				'max_size' => 1000
+			]);
+
+			if(!$this->upload->do_upload('documents')){
+				$this->response(
+					["message" => "document file: " . $this->upload->display_errors()],
+					200
+				);
+				return;
+			}else{
+				$document_upload = $this->upload->data();
+			}
+
+			$requests = $this->input->post();
+			$requests["profile_picture"] = $profile_upload["file_name"];
+			$requests["documents"] = $document_upload["file_name"];
+
+			$this->response($this->EmployeeModel->registerEmployee($requests), 200);
+
+		} catch (Exception $ex){
 			$this->response([
-				"message" => validation_errors()
+				"message" => $ex->getMessage()
 			], 200);
-			return;
 		}
-
-		// for time being authorization is not working
-//		$user = $this->AuthModel->checkAuth($this->input->post("token"));
-//		if(!$user["is_admin"]){
-//			$this->response(["message" => "Access Denied!"], 200);
-//			return;
-//		}
-
-		$this->load->library('upload', [
-			'upload_path' => './uploads/profile_pictures',
-			'file_name' => 'profile_pic_' . $this->input->post("email") . '.png',
-			'allowed_types' => ['jpg', 'png', 'ico', 'jpeg'],
-			'max_size' => 1000
-		]);
-
-		if(!$this->upload->do_upload('profile_picture')){
-			$this->response(
-				["message" => "image file: " . $this->upload->display_errors()],
-				200
-			);
-			return;
-		}else{
-			$profile_upload = $this->upload->data();
-		}
-
-		$this->upload = null;
-		$this->load->library('upload', [
-			'upload_path' => './uploads/documents',
-			'file_name' => 'application_doc_'.$this->input->post("email").'.zip',
-			'allowed_types' => ['zip'],
-			'max_size' => 1000
-		]);
-
-		if(!$this->upload->do_upload('documents')){
-			$this->response(
-				["message" => "document file: " . $this->upload->display_errors()],
-				200
-			);
-			return;
-		}else{
-			$document_upload = $this->upload->data();
-		}
-
-		$requests = $this->input->post();
-		$requests["profile_picture"] = $profile_upload["file_name"];
-		$requests["documents"] = $document_upload["file_name"];
-
-		$this->response($this->EmployeeModel->registerEmployee($requests), 200);
 
 	}
 
@@ -93,25 +100,24 @@ class Employees extends REST_Controller {
 	 */
 	function change_password_post(){
 
-		if(!$this->form_validation->run()){
-			$this->response([
-				"message" => validation_errors()
-			], 200);
-			return;
-		}
-
-		// authorization is not working
-		$user = $this->AuthModel->checkAuth($this->input->post("token"));
-
-		if($this->input->post("new_password") != $this->input->post("confirm_password")){
-			$this->response([
-				"message" => "password confirmation doesn't match with the new password"
-			], 200);
-		}
-
-		$this->load->model("AccountModel");
-
 		try{
+
+			if(!$this->form_validation->run()){
+				$this->response([
+					"message" => validation_errors()
+				], 200);
+				return;
+			}
+
+			$user = $this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token"));
+
+			if($this->input->post("new_password") != $this->input->post("confirm_password")){
+				$this->response([
+					"message" => "password confirmation doesn't match with the new password"
+				], 200);
+			}
+
+			$this->load->model("AccountModel");
 
 			$this->response(
 				$this->AccountModel->changePassword(
@@ -167,35 +173,41 @@ class Employees extends REST_Controller {
 
 	function change_profile_picture_post(){
 
-		if(!$this->form_validation->run()){
-			$this->response([
-				"message" => validation_errors()
-			], 200);
-			return;
+		try{
+
+			if(!$this->form_validation->run()){
+				$this->response([
+					"message" => validation_errors()
+				], 200);
+				return;
+			}
+
+			// authentication is not working
+			$user = $this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token"));
+
+			$this->load->library("upload", [
+				'upload_path' => './uploads/profile_pictures',
+				'file_name' => 'profile_pic_' . $user["email"] . '.png',
+				'allowed_types' => ['jpg', 'png', 'ico', 'jpeg'],
+				'max_size' => 1000,
+				'overwrite' => TRUE
+			]);
+
+			if(!$this->upload->do_upload('profile_picture')){
+				$this->response(
+					["message" => "image file: " . $this->upload->display_errors()],
+					200
+				);
+				return;
+			}
+
+			$profile_upload = $this->upload->data();
+			$this->EmployeeModel->updateProfilePicture($user["employee_id"], $profile_upload["file_name"]);
+			$this->response(["profile_picture" => $profile_upload['file_name']], 200);
+
+		} catch (Exception $ex){
+			$this->response(["message" => $ex->getMessage()], 200);
 		}
-
-		// authentication is not working
-		$user = $this->AuthModel->checkAuth($this->input->post("token"));
-
-		$this->load->library("upload", [
-			'upload_path' => './uploads/profile_pictures',
-			'file_name' => 'profile_pic_' . $user["email"] . '.png',
-			'allowed_types' => ['jpg', 'png', 'ico', 'jpeg'],
-			'max_size' => 1000,
-			'overwrite' => TRUE
-		]);
-
-		if(!$this->upload->do_upload('profile_picture')){
-			$this->response(
-				["message" => "image file: " . $this->upload->display_errors()],
-				200
-			);
-			return;
-		}
-
-		$profile_upload = $this->upload->data();
-		$this->EmployeeModel->updateProfilePicture($user["employee_id"], $profile_upload["file_name"]);
-		$this->response(["profile_picture" => $profile_upload['file_name']], 200);
 
 	}
 
@@ -217,22 +229,27 @@ class Employees extends REST_Controller {
 	 */
 	function employee_detail_post(string $employee_id, string $token){
 
-		if(!$this->form_validation->run()){
-			$this->response([
-				"message" => validation_errors()
-			], 200);
-			return;
+		try{
+
+			if(!$this->form_validation->run()){
+				$this->response([
+					"message" => validation_errors()
+				], 200);
+				return;
+			}
+
+			$user = $this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token"));
+
+			$this->response(
+				$this->AccountDepartment->accountDetail(
+					($user["is_admin"] && isset($_POST["employee_id"])) ? $this->input->post("employee_id") : $user["employee_id"]
+				),
+				200
+			);
+
+		} catch(Exception $ex){
+			$this->response(["message" => $ex->getMessage()], 200);
 		}
-
-		//authorization is not working
-		$user = $this->AuthModel->checkAuth($this->input->post("token"));
-
-		$this->response(
-			$this->AccountDepartment->accountDetail(
-				($user["is_admin"] && isset($_POST["employee_id"])) ? $this->input->post("employee_id") : $user["employee_id"]
-			),
-			200
-		);
 
 	}
 
@@ -244,21 +261,26 @@ class Employees extends REST_Controller {
 	 */
 	function employee_list_post(){
 
-		if(!$this->form_validation->run()){
-			$this->response(['message' => $this->validation_errors()], 200);
-			return;
+		try{
+
+			if(!$this->form_validation->run()){
+				$this->response(['message' => $this->validation_errors()], 200);
+				return;
+			}
+
+			$user = $this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token"));
+
+			if(!$user["is_admin"]) {
+				$this->response(["message" => "Access Denied!"], 200);
+				return;
+			}
+
+			$this->load->model("AccountModel");
+			$this->response($this->AccountModel->allAccounts($this->input->post()), 200);
+
+		} catch (Exception $ex){
+			$this->response(["message" => $ex->getMessage()], 200);
 		}
-
-		//authorization is not working
-//		$user = $this->AuthModel->checkAuth($this->input->post("token"));
-//
-//		if(!$user["is_admin"]) {
-//			$this->response(["message" => "Access Denied!"], 200);
-//			return;
-//		}
-
-		$this->load->model("AccountModel");
-		$this->response($this->AccountModel->allAccounts($this->input->post()), 200);
 
 	}
 
@@ -272,23 +294,29 @@ class Employees extends REST_Controller {
 	 */
 	function change_application_status_post(){
 
-		if(!$this->form_validation->run()){
-			$this->response([
-				"message" => validation_errors()
-			], 200);
-			return;
+		try{
+
+			if(!$this->form_validation->run()){
+				$this->response([
+					"message" => validation_errors()
+				], 200);
+				return;
+			}
+
+			//authorization is not working
+			$user = $this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token"));
+			if(!$user["is_admin"]){
+				$this->response(["message" => "Access Denied!"], 200);
+				return;
+			}
+
+			$result = $this->EmployeeModel->updateApplicationStatus($user["employee_id"], $this->input->post("status"));
+
+			$this->response($result, 200);
+
+		} catch(Exception $ex){
+			$this->response(["message" => $ex->getMessage()], 200);
 		}
-
-		//authorization is not working
-		$user = $this->AuthModel->checkAuth($this->input->post("token"));
-		if(!$user["is_admin"]){
-			$this->response(["message" => "Access Denied!"], 200);
-			return;
-		}
-
-		$result = $this->EmployeeModel->updateApplicationStatus($user["employee_id"], $this->input->post("status"));
-
-		$this->response($result, 200);
 
 	}
 
@@ -309,24 +337,29 @@ class Employees extends REST_Controller {
 	 */
 	function application_detail_post(){
 
-		if(!$this->form_validation->run()){
-			$this->response([
-				"message" => validation_errors()
-			], 200);
-			return;
+		try{
+
+			if(!$this->form_validation->run()){
+				$this->response([
+					"message" => validation_errors()
+				], 200);
+				return;
+			}
+
+			$user = $this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token"));
+
+			if(!$user["is_admin"]){
+				$this->response(["message" => "access denied!"], 200);
+			}
+
+			$this->response(
+				$this->EmployeeModel->byApplicationNumber($this->input->post("application_number")),
+				200
+			);
+
+		} catch (Exception $ex){
+			$this->response(["message" => $ex->getMessage()], 200);
 		}
-
-		//authorization is not working
-//		$user = $this->AuthModel->checkAuth($this->input->post("token"));
-//
-//		if(!$user["is_admin"]){
-//			$this->response(["message" => "access denied!"], 200);
-//		}
-
-		$this->response(
-			$this->EmployeeModel->byApplicationNumber($this->input->post("application_number")),
-			200
-		);
 
 	}
 
@@ -339,20 +372,25 @@ class Employees extends REST_Controller {
 	 */
 	function application_list_post(){
 
-		if(!$this->form_validation->run()){
-			$this->response(['message' => $this->validation_errors()], 200);
-			return;
+		try{
+
+			if(!$this->form_validation->run()){
+				$this->response(['message' => $this->validation_errors()], 200);
+				return;
+			}
+
+			$user = $this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token"));
+
+			if(!$user["is_admin"]) {
+				$this->response(["message" => "Access Denied!"], 200);
+				return;
+			}
+
+			$this->response($this->EmployeeModel->getApplications($this->input->post()), 200);
+
+		} catch (Exception $ex){
+			$this->response(["message" => $ex->getMessage()], 200);
 		}
-
-		//authorization is not working
-//		$user = $this->AuthModel->checkAuth($this->input->post("token"));
-//
-//		if(!$user["is_admin"]) {
-//			$this->response(["message" => "Access Denied!"], 200);
-//			return;
-//		}
-
-		$this->response($this->EmployeeModel->getApplications($this->input->post()), 200);
 
 	}
 
