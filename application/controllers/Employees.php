@@ -28,7 +28,6 @@ class Employees extends REST_Controller {
 	 * address
 	 * @address is json string containing array of address for example
 	 */
-	// CgzTTOk4
 	function register_employee_post(){
 
 		try{
@@ -182,7 +181,6 @@ class Employees extends REST_Controller {
 				return;
 			}
 
-			// authentication is not working
 			$user = $this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token"));
 
 			$this->load->library("upload", [
@@ -211,13 +209,9 @@ class Employees extends REST_Controller {
 
 	}
 
-	function suspend_user(){
+	function suspend_user(){}
 
-	}
-
-	function delete_user(){
-
-	}
+	function delete_user(){}
 
 	/**
 	 * returns specific employee detail which is identified by employee_id
@@ -241,7 +235,7 @@ class Employees extends REST_Controller {
 			$user = $this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token"));
 
 			$this->response(
-				$this->AccountDepartment->accountDetail(
+				$this->AccountModel->accountDetail(
 					($user["is_admin"] && isset($_POST["employee_id"])) ? $this->input->post("employee_id") : $user["employee_id"]
 				),
 				200
@@ -326,9 +320,7 @@ class Employees extends REST_Controller {
 	 *   application_number
 	 * 	 token
 	 */
-	function delete_application(){
-
-	}
+	function delete_application(){}
 
 	/**
 	 * @param $application_id int

@@ -91,10 +91,12 @@ class AccountModel extends CI_Model {
 			return [];
 		}
 
-		$detail = $this->db->get_where("employee", ["id" => $id])->result();
+		$detail = $this->db->get_where("employee", ["id" => $id])->result_array();
+		$address = $this->db->get_where("address", ["employee_id" => $id])->result_array();
 		return (sizeof($detail) > 0) ? [
 			"account" => $result,
-			"detail" => $detail[0]
+			"detail" => $detail[0],
+			"address" => $address
 		]: [];
 
 	}

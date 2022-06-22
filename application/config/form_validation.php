@@ -250,6 +250,23 @@ $config = array(
 			'rules' => 'required|trim|regex_match[/(\w\s?)+/]|max_length[100]'
 		]
 	],
+	'Vacancy/all' => [
+		[
+			'field' => 'position',
+			'label' => 'position',
+			'rules' => 'trim|regex_match[/(\w\s?)+/]|max_length[100]'
+		],
+		[
+			'field' => 'department_id',
+			'label' => 'department_id',
+			'rules' => 'integer'
+		],
+		[
+			'field' => 'status',
+			'label' => 'status',
+			'rules' => 'required|in_list[active,inactive]'
+		]
+	],
 	'Auth/login' => [
 		[
 			'field' => 'email',

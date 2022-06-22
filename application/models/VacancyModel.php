@@ -42,13 +42,24 @@ class VacancyModel extends CI_Model {
 
 	}
 
-	function getVacancies($status = "", $department = "", $position = ""){
-		return $this->db->select("*")
-			->from($this->table_name)
-			->like("%$status%")
-			->or_like("%$department%")
-			->or_like("%$position%")
-			->get();
+	function getVacancies($request){
+
+		$query = $this->db->select("*")->from($this->table_name);
+
+		if(isset($request["status"])){
+			$query->like("status", "%" . $request["status"] . "%");
+		}
+
+		if(isset($request["department_id"])){
+			$query->or_like("department_id", "%" . $request["department_id"] . "%");
+		}
+
+		if(isset($request["position"])){
+			$query->or_like("position", "%" . $request["position"] . "%");
+		}
+
+		return $query->get()->result_array();
+
 	}
 
 	function updateVacancy($request){
