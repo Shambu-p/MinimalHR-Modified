@@ -1,6 +1,7 @@
 <?php
 
-$config = array(
+$config = [
+
 	'Employees/register_employee' => [
 		[
 			'field' => 'token',
@@ -164,6 +165,7 @@ $config = array(
 			'rules' => 'integer'
 		]
 	],
+
 	'Department/create' => [
 		[
 			'field' => 'token',
@@ -203,6 +205,7 @@ $config = array(
 			'rules' => 'integer'
 		],
 	],
+
 	'Vacancy/post_vacancy' => [
 		[
 			'field' => 'token',
@@ -267,6 +270,7 @@ $config = array(
 			'rules' => 'required|in_list[active,inactive]'
 		]
 	],
+
 	'Auth/login' => [
 		[
 			'field' => 'email',
@@ -285,5 +289,61 @@ $config = array(
 			'label' => 'token',
 			'rules' => 'required'
 		]
+	],
+
+	'Address/add_address' => [
+		[
+			'field' => 'token',
+			'label' => 'token',
+			'rules' => 'required'
+		],
+		[
+			'field' => 'employee_id',
+			'label' => 'employee_id',
+			'rules' => 'required|integer'
+		],
+		[
+			'field' => 'city',
+			'label' => 'city',
+			'rules' => 'required'
+		],
+		[
+			'field' => 'sub_city',
+			'label' => 'sub_city',
+			'rules' => 'required'
+		],
+		[
+			'field' => 'phone_number',
+			'label' => 'phone_number',
+			'rules' => 'required|trim|regex_match[/(\+2519|09)\d{8}/]|max_length[14]'
+		],
+	],
+	'Address/delete_address' => [
+		[
+			'field' => 'token',
+			'label' => 'token',
+			'rules' => 'required'
+		],
+		[
+			'field' => 'employee_id',
+			'label' => 'employee_id',
+			'rules' => 'required|integer'
+		],
+		[
+			'field' => 'city',
+			'label' => 'city',
+			'rules' => 'required'
+		],
+		[
+			'field' => 'sub_city',
+			'label' => 'sub_city',
+			'rules' => 'required'
+		],
+		[
+			'field' => 'phone_number',
+			'label' => 'phone_number',
+			'rules' => 'required|trim|regex_match[/(\+2519|09)\d{8}/]|max_length[14]'
+		],
 	]
-);
+
+];

@@ -243,6 +243,10 @@ class EmployeeModel extends CI_Model {
 			];
 
 			$this->db->insert('account', $final_array);
+			$this->db->insert('eventdate', [
+				"employee_id" => "",
+				""
+			]);
 
 		}
 

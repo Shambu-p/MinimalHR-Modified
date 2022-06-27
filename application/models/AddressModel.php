@@ -18,7 +18,7 @@ class AddressModel extends CI_Model {
 		$insert = [
 			"employee_id" => $request["employee_id"],
 			"city" => $request["city"],
-			"sub_city" => $request["sub_city"],
+			"sub_city" => $request["sub_city"]
 		];
 
 		if(isset($request["phone_number"])){
