@@ -344,6 +344,14 @@ $config = [
 			'label' => 'phone_number',
 			'rules' => 'required|trim|regex_match[/(\+2519|09)\d{8}/]|max_length[14]'
 		],
+	],
+
+	'Account/forgot_password' => [
+		[
+			'field' => 'email',
+			'label' => 'email',
+			'rules' => 'required|valid_email|max_length[50]'
+		]
 	]
 
 ];

@@ -17,7 +17,7 @@ class VacancyModel extends CI_Model {
 			"start_date" => $request["start_date"],
 			"end_date" => $request["end_date"],
 			"status" => $request["status"],
-			"updated_by" => $request["updated_by"],
+			"updated_by" => $request["employee_id"],
 			"department_id" => $request["department_id"]
 		]);
 

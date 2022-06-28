@@ -9,6 +9,7 @@ class Department extends REST_Controller {
 
 	function __construct() {
 
+		header('Access-Control-Allow-Origin: *');
 		parent::__construct();
 		$this->load->model("DepartmentModel");
 		$this->load->model("AuthModel");
