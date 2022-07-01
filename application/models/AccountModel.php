@@ -79,14 +79,14 @@ class AccountModel extends CI_Model {
 	 */
 	function getAccount(int $id) {
 
-		$result = $this->db->get_where($this->table_name, ['employee_id' => $id])->result();
+		$result = $this->db->get_where($this->table_name, ['employee_id' => $id])->result_array();
 		return (sizeof($result) > 0) ? $result[0] : [];
 
 	}
 
 	function accountDetail(int $id){
 
-		$result = $this->getAccount($id);
+		$result = (array) $this->getAccount($id);
 		if(!sizeof($result)){
 			return [];
 		}

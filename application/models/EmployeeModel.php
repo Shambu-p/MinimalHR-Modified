@@ -152,7 +152,7 @@ class EmployeeModel extends CI_Model {
 
 	function getEmployee($id){
 
-		$result = $this->db->get_where($this->table_name, ['id' => $id])->result();
+		$result = (array) $this->db->get_where($this->table_name, ['id' => $id])->result_array();
 		return (sizeof($result) > 0) ? $result[0] : [];
 
 	}

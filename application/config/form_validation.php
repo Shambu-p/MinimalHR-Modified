@@ -85,9 +85,9 @@ $config = [
 	],
 	'Employees/profile_picture' => [
 		[
-			'field' => 'token',
-			'label' => 'token',
-			'rules' => 'required'
+			'field' => 'employee_id',
+			'label' => 'employee_id',
+			'rules' => 'required|integer'
 		]
 	],
 	'Employees/application_detail' => [
@@ -267,7 +267,7 @@ $config = [
 		[
 			'field' => 'status',
 			'label' => 'status',
-			'rules' => 'required|in_list[active,inactive]'
+			'rules' => 'in_list[open,closed]'
 		]
 	],
 
@@ -318,11 +318,16 @@ $config = [
 			'rules' => 'required|trim|regex_match[/(\+2519|09)\d{8}/]|max_length[14]'
 		],
 	],
-	'Address/delete_address' => [
+	'Address/edit_address' => [
 		[
 			'field' => 'token',
 			'label' => 'token',
 			'rules' => 'required'
+		],
+		[
+			'field' => 'id',
+			'label' => 'id',
+			'rules' => 'required|integer'
 		],
 		[
 			'field' => 'employee_id',
@@ -344,6 +349,23 @@ $config = [
 			'label' => 'phone_number',
 			'rules' => 'required|trim|regex_match[/(\+2519|09)\d{8}/]|max_length[14]'
 		],
+	],
+	'Address/delete_address' => [
+		[
+			'field' => 'token',
+			'label' => 'token',
+			'rules' => 'required'
+		],
+		[
+			'field' => 'id',
+			'label' => 'id',
+			'rules' => 'required|integer'
+		],
+		[
+			'field' => 'employee_id',
+			'label' => 'employee_id',
+			'rules' => 'integer'
+		]
 	],
 
 	'Account/forgot_password' => [

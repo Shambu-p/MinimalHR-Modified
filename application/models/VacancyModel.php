@@ -2,7 +2,7 @@
 
 class VacancyModel extends CI_Model {
 
-	private $table_name = "vacancy";
+	private String $table_name = "vacancy";
 
 	function __construct(){
 		parent::__construct();
@@ -47,15 +47,15 @@ class VacancyModel extends CI_Model {
 		$query = $this->db->select("*")->from($this->table_name);
 
 		if(isset($request["status"])){
-			$query->like("status", "%" . $request["status"] . "%");
+			$query->like("status", $request["status"]);
 		}
 
 		if(isset($request["department_id"])){
-			$query->or_like("department_id", "%" . $request["department_id"] . "%");
+			$query->or_like("department_id", $request["department_id"]);
 		}
 
 		if(isset($request["position"])){
-			$query->or_like("position", "%" . $request["position"] . "%");
+			$query->or_like("position", $request["position"]);
 		}
 
 		return $query->get()->result_array();

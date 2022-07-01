@@ -137,27 +137,28 @@ class Employees extends REST_Controller {
 
 	}
 
-	function profile_picture_post(){
+	function profile_picture_get($employee_id){
 
-		if(!$this->form_validation->run()){
-			$this->response([
-				"message" => validation_errors()
-			], 200);
-			return;
-		}
+//		if(!$this->form_validation->run()){
+//			$this->response([
+//				"message" => validation_errors()
+//			], 200);
+//			return;
+//		}
 
-		$user = $this->AuthModel->checkAuth($this->input->post("token"));
+//		$user = $this->AuthModel->checkAuth($this->input->post("token"));
 
-		$employee_detail = $this->EmployeeModel->getEmployeeById($user["employee_id"]);
+		$employee_detail = $this->EmployeeModel->getEmployee($employee_id);
 
-		if(sizeof($employee_detail)){
+		if(!sizeof($employee_detail)){
 			$this->response(["message" => "employee not found"], 200);
+			return;
 		}
 
 		$file = "./uploads/profile_pictures/".$employee_detail["profile_picture"];
 		if (file_exists($file)) {
 			header('Content-Description: File Transfer');
-			header('Content-Type: application/pdf');
+			header('Content-Type: image/png');
 			// change inline to attachment if you want to download it instead
 			header('Content-Disposition: inline; filename="'.basename($file).'"');
 			header('Expires: 0');
@@ -222,7 +223,7 @@ class Employees extends REST_Controller {
 	 *
 	 * parameters should be sent using get method
 	 */
-	function employee_detail_post(string $employee_id, string $token){
+	function employee_detail_post(){
 
 		try{
 
@@ -234,7 +235,7 @@ class Employees extends REST_Controller {
 			}
 
 			$user = $this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token"));
-
+			$this->load->model("AccountModel");
 			$this->response(
 				$this->AccountModel->accountDetail(
 					($user["is_admin"] && isset($_POST["employee_id"])) ? $this->input->post("employee_id") : $user["employee_id"]

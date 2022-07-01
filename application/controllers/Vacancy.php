@@ -8,8 +8,10 @@ use Restserver\Libraries\REST_Controller;
 class Vacancy extends REST_Controller {
 
 	function __construct($config = 'rest') {
+		header('Access-Control-Allow-Origin: *');
 		parent::__construct($config);
 		$this->load->model("VacancyModel");
+		$this->load->model("AuthModel");
 	}
 
 	function post_vacancy_post(){
@@ -58,22 +60,8 @@ class Vacancy extends REST_Controller {
 			return;
 		}
 
-		$request = [];
-
-		if(isset($_POST["status"])) {
-			$request["status"] = $this->input->post("status");
-		}
-
-		if(isset($_POST["department"])) {
-			$request["department_id"] = $this->input->post("department");
-		}
-
-		if(isset($_POST["position"])) {
-			$request["position"] = $this->input->post("position");
-		}
-
 		$this->response(
-			$this->VacancyModel->getVacancies($request),
+			$this->VacancyModel->getVacancies($this->input->post()),
 			200
 		);
 
