@@ -37,8 +37,9 @@ class VacancyModel extends CI_Model {
 
 		$vacancy = $result->result_array()[0];
 
-		$updater_result = $this->db->get_where("employee", ["id" => $vacancy[0]]);
-		return $updater_result->num_rows() ? $updater_result->result_array()[0] : [];
+		$updater_result = $this->db->get_where("employee", ["id" => $vacancy["updated_by"]]);
+		$vacancy["updated_by"] = $updater_result->num_rows() ? $updater_result->result_array()[0] : [];
+		return $vacancy;
 
 	}
 
@@ -48,14 +49,20 @@ class VacancyModel extends CI_Model {
 
 		if(isset($request["status"])){
 			$query->like("status", $request["status"]);
+
+			if($request["status"] == "open"){
+				$query->where("end_date >", "current_timestamp()", true);
+			}else{
+				$query->where("end_date <", "current_timestamp()", true);
+			}
 		}
 
 		if(isset($request["department_id"])){
-			$query->or_like("department_id", $request["department_id"]);
+			$query->like("department_id", $request["department_id"]);
 		}
 
 		if(isset($request["position"])){
-			$query->or_like("position", $request["position"]);
+			$query->like("position", $request["position"]);
 		}
 
 		return $query->get()->result_array();

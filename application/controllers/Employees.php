@@ -139,15 +139,6 @@ class Employees extends REST_Controller {
 
 	function profile_picture_get($employee_id){
 
-//		if(!$this->form_validation->run()){
-//			$this->response([
-//				"message" => validation_errors()
-//			], 200);
-//			return;
-//		}
-
-//		$user = $this->AuthModel->checkAuth($this->input->post("token"));
-
 		$employee_detail = $this->EmployeeModel->getEmployee($employee_id);
 
 		if(!sizeof($employee_detail)){
@@ -394,7 +385,67 @@ class Employees extends REST_Controller {
 	 * and returning detail of the application
 	 */
 	function check_application_get($application_number){
-		$this->response($this->EmployeeModel->getApplication($application_number), 200);
+		$this->response($this->EmployeeModel->byApplicationNumber($application_number), 200);
+	}
+
+	function apply_for_vacancy_post(){
+
+		try{
+
+			if(!$this->form_validation->run()){
+				$this->response([
+					"message" => validation_errors()
+				], 200);
+				return;
+			}
+
+			$this->load->library('upload', [
+				'upload_path' => './uploads/profile_pictures',
+				'file_name' => 'profile_pic_' . $this->input->post("email") . '.png',
+				'allowed_types' => ['jpg', 'png', 'ico', 'jpeg'],
+				'max_size' => 1000
+			]);
+
+			if(!$this->upload->do_upload('profile_picture')){
+				$this->response(
+					["message" => "image file: " . $this->upload->display_errors()],
+					200
+				);
+				return;
+			}else{
+				$profile_upload = $this->upload->data();
+			}
+
+			$this->upload = null;
+			$this->load->library('upload', [
+				'upload_path' => './uploads/documents',
+				'file_name' => 'application_doc_'.$this->input->post("email").'.zip',
+				'allowed_types' => ['zip'],
+				'max_size' => 1000
+			]);
+
+			if(!$this->upload->do_upload('documents')){
+				$this->response(
+					["message" => "document file: " . $this->upload->display_errors()],
+					200
+				);
+				return;
+			}else{
+				$document_upload = $this->upload->data();
+			}
+
+			$requests = $this->input->post();
+			$requests["profile_picture"] = $profile_upload["file_name"];
+			$requests["documents"] = $document_upload["file_name"];
+
+			$this->response($this->EmployeeModel->registerEmployee($requests), 200);
+
+		} catch (Exception $ex){
+			$this->response([
+				"message" => $ex->getMessage()
+			], 200);
+		}
+
 	}
 
 }

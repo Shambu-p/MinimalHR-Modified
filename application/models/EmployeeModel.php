@@ -43,11 +43,11 @@ class EmployeeModel extends CI_Model {
 			"education_level" => $request["education_level"],
 			"employee_department" => $request["department_id"],
 			"position" => $request["position"],
-			"status" => isset($request["vacancy"]) ? "pending" : "accepted"
+			"status" => isset($request["vacancy_id"]) ? "pending" : "accepted"
 		]);
 
 		$employee_id = $this->db->insert_id();
-		$generated_application_number = isset($request["vacancy"]) ? intval($request["vacancy"] . $employee_id) : intval($employee_id . $request["vacancy"]);
+		$generated_application_number = isset($request["vacancy_id"]) ? intval($request["vacancy_id"] . $employee_id) : intval($employee_id . 0);
 
 		$this->db->set("application_number", $generated_application_number);
 		$this->db->where("id", $employee_id);
@@ -64,13 +64,12 @@ class EmployeeModel extends CI_Model {
 				"salary" => $request["salary"],
 				"phone_number" => $request["phone_number"],
 				"education_level" => $request["education_level"],
-				"employee_department" => $request["employee_department"],
+				"employee_department" => $request["department_id"],
 				"position" => $request["position"],
-				"status" => isset($request["vacancy"]) ? "pending" : "accepted",
+				"status" => isset($request["vacancy_id"]) ? "pending" : "accepted",
 				"application_number" => $generated_application_number
 			],
-			"address" => [],
-
+			"address" => []
 		];
 
 		foreach($address as $single_address){
@@ -81,7 +80,7 @@ class EmployeeModel extends CI_Model {
 
 		}
 
-		if(!isset($request["vacancy"])){
+		if(!isset($request["vacancy_id"])){
 
 			$password = $this->passwordGenerator();
 			$account = [
@@ -256,14 +255,14 @@ class EmployeeModel extends CI_Model {
 
 	function byApplicationNumber(int $application_number){
 
-		$application = (array) $this->db->get_where($this->table_name, ["application_number" => $application_number])->result();
-		if(sizeof($application)){
+		$application = $this->db->get_where($this->table_name, ["application_number" => $application_number])->result_array();
+		if(!sizeof($application)){
 			return [];
 		}
 
 		return [
-			"applicant" => $application[0],
-			"address" => (array) $this->db->get_where("address", ["employee_id" => $application[0]["id"]])->result()
+			"detail" => $application[0],
+			"address" => $this->db->get_where("address", ["employee_id" => $application[0]["id"]])->result_array()
 		];
 
 	}

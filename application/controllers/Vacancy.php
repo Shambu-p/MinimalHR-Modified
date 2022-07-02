@@ -45,7 +45,7 @@ class Vacancy extends REST_Controller {
 	function vacancy_detail_get($id){
 
 		$this->response(
-			$this->VacancyModel->sigleVacancy($id),
+			$this->VacancyModel->singleVacancy($id),
 			200
 		);
 
