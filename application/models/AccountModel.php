@@ -20,7 +20,7 @@ class AccountModel extends CI_Model {
 	 */
 	function changePassword($employee_id, $old_password, $new_password){
 
-		$employee = (array) $this->db->get_where($this->table_name, ["employee_id" => $employee_id])->result();
+		$employee = $this->db->get_where($this->table_name, ["employee_id" => $employee_id])->result_array();
 		if(!sizeof($employee)){
 			throw new Exception("account not found");
 		}
@@ -42,12 +42,72 @@ class AccountModel extends CI_Model {
 	}
 
 	/**
+	 * @param $id
+	 * @param $status
+	 * @throws Exception
+	 */
+	function updateAccountStatus($id, $status){
+
+		$account = $this->getAccount($id);
+
+		if(!sizeof($account)){
+			throw new Exception("account not found!");
+		}
+
+		if($account["status"] == $status){
+			return $account;
+		}
+
+		$this->db->update($this->table_name, [
+			"status" => $status
+		], [
+			"employee_id" => $id
+		]);
+
+		if($status == "suspended"){
+
+			$dt = new DateTime();
+
+			$this->db->update("eventdate", [
+				"prohibition_start_date" => $dt->getTimestamp()
+			], [
+				"employee_id" => $id
+			]);
+
+		}else if($status == "active"){
+
+			$dt = new DateTime();
+
+			$this->db->update("eventdate", [
+				"prohibition_end_date" => $dt->getTimestamp()
+			], [
+				"employee_id" => $id
+			]);
+
+		}else {
+
+			$dt = new DateTime();
+
+			$this->db->update("eventdate", [
+				"termination_date" => $dt->getTimestamp()
+			], [
+				"employee_id" => $id
+			]);
+
+		}
+
+		$account["status"] = $status;
+		return $account;
+
+	}
+
+	/**
 	 * get an employee by using email address
 	 * @param string $email
 	 *            email address
 	 * @return array|array[]|object|object[]
 	 */
-	function getAccountByEmail(string $email){
+	function getAccountByEmail(string $email) {
 
 		$result = $this->db->get_where($this->table_name, ['email' => $email])->result();
 		return sizeof($result) ? $result[0] : [];
@@ -93,10 +153,12 @@ class AccountModel extends CI_Model {
 
 		$detail = $this->db->get_where("employee", ["id" => $id])->result_array();
 		$address = $this->db->get_where("address", ["employee_id" => $id])->result_array();
+		$event_date = $this->db->get_where("eventdate", ["employee_id" => $id])->result_array();
 		return (sizeof($detail) > 0) ? [
 			"account" => $result,
 			"detail" => $detail[0],
-			"address" => $address
+			"address" => $address,
+			"event_date" => sizeof($event_date) ? $event_date[0] : []
 		]: [];
 
 	}

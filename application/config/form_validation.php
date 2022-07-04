@@ -130,6 +130,23 @@ $config = [
 			'rules' => 'required|integer'
 		]
 	],
+	'Employees/change_status' => [
+		[
+			'field' => 'token',
+			'label' => 'token',
+			'rules' => 'required'
+		],
+		[
+			'field' => 'employee_id',
+			'label' => 'employee_id',
+			'rules' => 'required|integer'
+		],
+		[
+			'field' => 'status',
+			'label' => 'status',
+			'rules' => 'required|integer'
+		]
+	],
 	'Employees/profile_picture' => [
 		[
 			'field' => 'employee_id',

@@ -92,6 +92,11 @@ class EmployeeModel extends CI_Model {
 			];
 
 			$this->db->insert('account', $account);
+			$dt = new DateTime();
+			$this->db->insert('eventdate', [
+				"employee_id" => $employee_id,
+				"work_start_date" => $dt->getTimestamp()
+			]);
 			$account["password"] = $password;
 			$final_array["Account"] = $account;
 
@@ -138,13 +143,13 @@ class EmployeeModel extends CI_Model {
 			$condition["vacancy_id"] = $request["vacancy_id"];
 		}
 
-		return (array) $this->db->get_where($this->table_name, $condition)->result();
+		return (array) $this->db->get_where($this->table_name, $condition)->result_array();
 
 	}
 
 	function getApplication(int $application_number) {
 
-		$result = $this->db->get_where($this->table_name, ["application_number" => $application_number])->result();
+		$result = $this->db->get_where($this->table_name, ["application_number" => $application_number])->result_array();
 		return sizeof($result) ? $result[0] : [];
 
 	}
@@ -241,10 +246,14 @@ class EmployeeModel extends CI_Model {
 				"password" => password_hash($password, PASSWORD_DEFAULT)
 			];
 
+
 			$this->db->insert('account', $final_array);
+
+			$dt = new DateTime();
+
 			$this->db->insert('eventdate', [
-				"employee_id" => "",
-				""
+				"employee_id" => $this->db->insert_id(),
+				"start_working_date" => $dt->getTimestamp()
 			]);
 
 		}

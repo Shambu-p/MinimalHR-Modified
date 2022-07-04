@@ -39,6 +39,8 @@ class VacancyModel extends CI_Model {
 
 		$updater_result = $this->db->get_where("employee", ["id" => $vacancy["updated_by"]]);
 		$vacancy["updated_by"] = $updater_result->num_rows() ? $updater_result->result_array()[0] : [];
+		$department = $this->db->get_where("department", ["id", $vacancy["department_id"]])->result_array();
+		$vacancy["department"] = sizeof($department) ? $department[0] : [];
 		return $vacancy;
 
 	}
