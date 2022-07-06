@@ -10,16 +10,7 @@ class VacancyModel extends CI_Model {
 
 	function createVacancy($request){
 
-		$vacancy = [
-			"position" => $request["position"],
-			"salary" => $request["salary"],
-			"description" => $request["description"],
-			"start_date" => $request["start_date"],
-			"end_date" => $request["end_date"],
-			"status" => $request["status"],
-			"updated_by" => $request["employee_id"],
-			"department_id" => $request["department_id"]
-		];
+		$vacancy = $this->prepareVacancyData($request);
 
 		$this->db->insert($this->table_name, $vacancy);
 		$vacancy["id"] = $this->db->insert_id();
@@ -76,18 +67,22 @@ class VacancyModel extends CI_Model {
 
 	}
 
-	function updateVacancy($request){
-
-		$vacancy = [
+	function prepareVacancyData($request) {
+		return [
 			"position" => $request["position"],
 			"salary" => $request["salary"],
 			"description" => $request["description"],
 			"start_date" => $request["start_date"],
 			"end_date" => $request["end_date"],
 			"status" => $request["status"],
-			"updated_by" => $request["updated_by"],
+			"updated_by" => $request["employee_id"],
 			"department_id" => $request["department_id"]
 		];
+	}
+
+	function updateVacancy($request){
+
+		$vacancy = $this->prepareVacancyData($request);
 
 		$this->db->update(
 			$this->table_name,

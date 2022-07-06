@@ -289,7 +289,59 @@ $config = [
 		[
 			'field' => 'status',
 			'label' => 'status',
-			'rules' => 'required|in_list[active,inactive]'
+			'rules' => 'required|in_list[open,closed]'
+		],
+		[
+			'field' => 'start_date',
+			'label' => 'start_date',
+			'rules' => 'required'
+		],
+		[
+			'field' => 'end_date',
+			'label' => 'end_date',
+			'rules' => 'required'
+		],
+		[
+			'field' => 'employee_id',
+			'label' => 'employee_id',
+			'rules' => 'required|integer'
+		],
+		[
+			'field' => 'department_id',
+			'label' => 'department_id',
+			'rules' => 'required|integer'
+		],
+		[
+			'field' => 'position',
+			'label' => 'position',
+			'rules' => 'required|trim|regex_match[/(\w\s?)+/]|max_length[100]'
+		]
+	],
+	'Vacancy/update_vacancy' => [
+		[
+			'field' => 'token',
+			'label' => 'token',
+			'rules' => 'required'
+		],
+		[
+			'field' => 'description',
+			'label' => 'description',
+			'rules' => 'required|regex_match[/(\w\s?)+/]'
+		],
+		[
+			'field' => 'salary',
+			'label' => 'salary',
+			'rules' => 'required|numeric'
+		],
+		[
+			'field' => 'vacancy_id',
+			'label' => 'vacancy_id',
+			'rules' => 'required|integer'
+		],
+		[
+			'field' => 'status',
+			'label' => 'status',
+			'rules' => 'required|in_list[open,closed]'
 		],
 		[
 			'field' => 'start_date',

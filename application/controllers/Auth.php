@@ -2,9 +2,7 @@
 
 error_reporting(!E_DEPRECATED );
 
-//require APPPATH . '/libraries/REST_Controller.php';
 require APPPATH . '/core/API_Controller.php';
-//use Restserver\Libraries\REST_Controller;
 
 class Auth extends API_Controller {
 

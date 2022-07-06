@@ -6,8 +6,8 @@ require APPPATH . '/core/API_Controller.php';
 
 class Vacancy extends API_Controller {
 
-	function __construct($config = 'rest') {
-		parent::__construct($config);
+	function __construct() {
+		parent::__construct();
 		$this->load->model("VacancyModel");
 	}
 
@@ -31,6 +31,7 @@ class Vacancy extends API_Controller {
 
 	function update_vacancy_post(){
 
+		$this->authenticate("admin", true);
 		$request = $this->input->post();
 		$request["updated_by"] = $this->auth_user["employee_id"];
 		$this->response($this->VacancyModel->updateVacancy($request), 200);

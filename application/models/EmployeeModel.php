@@ -113,16 +113,16 @@ class EmployeeModel extends CI_Model {
 
 	function getApplication(int $application_number) {
 
-		$result = $this->db->get_where($this->table_name, ["application_number" => $application_number])->result_array();
-		return sizeof($result) ? $result[0] : [];
+		$condition = ["application_number" => $application_number];
+		return $this->db->get_where(
+			$this->table_name,
+			$condition
+		)->row_array();
 
 	}
 
 	function getEmployee($id){
-
-		$result = (array) $this->db->get_where($this->table_name, ['id' => $id])->result_array();
-		return (sizeof($result) > 0) ? $result[0] : [];
-
+		return $this->db->get_where($this->table_name, ['id' => $id])->row_array();
 	}
 
 	/**
@@ -225,25 +225,12 @@ class EmployeeModel extends CI_Model {
 
 	}
 
-	function byApplicationNumber(int $application_number){
+	function byApplicationNumber(int $application_number) {
 
-		$application = $this->db->get_where(
+		return $this->db->get_where(
 			$this->table_name,
 			["application_number" => $application_number]
 		)->row_array();
-		if(empty($application)){
-			return [];
-		}
-
-		$address = $this->db->get_where(
-			"address",
-			["employee_id" => $application["id"]]
-		)->result_array();
-
-		return [
-			"detail" => $application,
-			"address" => $address
-		];
 
 	}
 

@@ -187,13 +187,10 @@ class Employees extends API_Controller {
 	 * @param $token string
 	 * returns the detail of application which will be identified by application id
 	 */
-	function application_detail_post(){
+	function application_detail_post() {
 
 		$this->authenticate("admin", true);
-		$this->response(
-			$this->EmployeeModel->byApplicationNumber($this->input->post("application_number")),
-			200
-		);
+		$this->check_application_get($this->input->post("application_number"));
 
 	}
 
@@ -217,7 +214,24 @@ class Employees extends API_Controller {
 	 * and returning detail of the application
 	 */
 	function check_application_get($application_number){
-		$this->response($this->EmployeeModel->byApplicationNumber($application_number), 200);
+
+		$this->load->model("DepartmentModel");
+		$this->load->model("AddressModel");
+
+		$application = $this->EmployeeModel->byApplicationNumber($application_number);
+		if(empty($application)){
+			$this->response([], 200);
+		}
+
+		$address = $this->AddressModel->employeeAddress($application["id"]);
+		$department = $this->DepartmentModel->departmentDetail($application["employee_department"]);
+
+		$this->response([
+			"detail" => $application,
+			"address" => $address,
+			"department" => $department
+		],200);
+
 	}
 
 	function apply_and_register(){

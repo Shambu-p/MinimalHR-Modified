@@ -15,12 +15,11 @@ class Utils {
 
 		if(!$vacancy_id) {
 
-			$password = $this->passwordGenerator();
 			$final_array["account"] = [
 				"email" => $request["email"],
 				"status" => "active",
 				"is_admin" => false,
-				"password" => password_hash($password, PASSWORD_DEFAULT)
+				"password" => $this->passwordGenerator()
 			];
 
 		}else{

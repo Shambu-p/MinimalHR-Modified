@@ -5,7 +5,6 @@ require APPPATH . '/core/API_Controller.php';
 
 class Department extends API_Controller {
 
-
 	function __construct() {
 
 		parent::__construct();
@@ -56,7 +55,7 @@ class Department extends API_Controller {
 	 */
 	function update_post(){
 
-		$this->authenticate("admin_role", true);
+		$this->authenticate("admin", true);
 
 		$this->response(
 			$this->DepartmentModel->updateDepartment(
@@ -74,7 +73,19 @@ class Department extends API_Controller {
 	}
 
 	function department_detail_get(int $id){
-		$this->response($this->DepartmentModel->departmentDetail($id), 200);
+
+		$department = $this->DepartmentModel->departmentDetail($id);
+		if(empty($department)){
+			$this->response([], 200);
+		}
+
+		if($department["department_head"]){
+			$head = $this->EmployeeModel->getEmployee($department["department_head"]);
+			$department["department_head"] = $head["full_name"] ?? "";
+		}
+
+		$this->response($department, 200);
+
 	}
 
 }
