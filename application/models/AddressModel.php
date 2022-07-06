@@ -15,23 +15,7 @@ class AddressModel extends CI_Model {
 
 	function addAddress($request) {
 
-		$insert = [
-			"employee_id" => $request["employee_id"],
-			"city" => $request["city"],
-			"sub_city" => $request["sub_city"]
-		];
-
-		if(isset($request["phone_number"])){
-			$insert["phone_number"] = $request["phone_number"];
-		}
-
-		if(isset($request["place_name"])){
-			$insert["place_name"] = $request["place_name"];
-		}
-
-		if(isset($request["street_name"])){
-			$insert["street_name"] = $request["street_name"];
-		}
+		$insert = $this->prepare_data($request);
 
 		$this->db->insert($this->table_name, $insert);
 		$insert["id"] = $this->db->insert_id();
@@ -40,25 +24,33 @@ class AddressModel extends CI_Model {
 
 	}
 
-	function editAddress($request) {
+	function prepare_data($request){
 
-		$address = [
+		$prepared = [
 			"employee_id" => $request["employee_id"],
 			"city" => $request["city"],
 			"sub_city" => $request["sub_city"]
 		];
 
 		if(isset($request["phone_number"])){
-			$address["phone_number"] = $request["phone_number"];
+			$prepared["phone_number"] = $request["phone_number"];
 		}
 
 		if(isset($request["place_name"])){
-			$address["place_name"] = $request["place_name"];
+			$prepared["place_name"] = $request["place_name"];
 		}
 
 		if(isset($request["street_name"])){
-			$address["street_name"] = $request["street_name"];
+			$prepared["street_name"] = $request["street_name"];
 		}
+
+		return $prepared;
+
+	}
+
+	function editAddress($request) {
+
+		$address = $this->prepare_data($request);
 
 		$this->db->update($this->table_name, $address, [
 			"id" => $request["id"],

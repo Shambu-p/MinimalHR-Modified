@@ -1,18 +1,15 @@
 <?php
 
-error_reporting(!E_DEPRECATED );
-require APPPATH . '/libraries/REST_Controller.php';
-use Restserver\Libraries\REST_Controller;
+//error_reporting(!E_DEPRECATED );
+require APPPATH . '/core/API_Controller.php';
 
-class Department extends REST_Controller {
+class Department extends API_Controller {
 
 
 	function __construct() {
 
-		header('Access-Control-Allow-Origin: *');
 		parent::__construct();
 		$this->load->model("DepartmentModel");
-		$this->load->model("AuthModel");
 
 	}
 
@@ -28,44 +25,27 @@ class Department extends REST_Controller {
 	 */
 	function create_post(){
 
-		try{
+		$this->authenticate("admin", true);
 
-			if(!$this->form_validation->run()){
-				$this->response([
-					"message" => validation_errors()
-				], 500);
-				return;
-			}
+		if(isset($_POST["department_head"])){
 
-			$user = $this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token"));
-			if(!$user["is_admin"]){
-				$this->response(["message" => "Access Denied!"], 200);
-				return;
-			}
+			$this->response(
+				$this->DepartmentModel->createDepartment(
+					$this->input->post("name"),
+					$this->input->post("department_head")
+				),
+				200
+			);
 
-			if(isset($_POST["department_head"])){
+		}else{
 
-				$this->response(
-					$this->DepartmentModel->createDepartment(
-						$this->input->post("name"),
-						$this->input->post("department_head")
-					),
-					200
-				);
+			$this->response(
+				$this->DepartmentModel->createDepartment(
+					$this->input->post("name")
+				),
+				200
+			);
 
-			}else{
-
-				$this->response(
-					$this->DepartmentModel->createDepartment(
-						$this->input->post("name")
-					),
-					200
-				);
-
-			}
-
-		} catch(Exception $ex){
-			$this->response(["message" => $ex->getMessage()], 200);
 		}
 
 	}
@@ -76,33 +56,16 @@ class Department extends REST_Controller {
 	 */
 	function update_post(){
 
-		try{
+		$this->authenticate("admin_role", true);
 
-			if(!$this->form_validation->run()){
-				$this->response([
-					"message" => validation_errors()
-				], 500);
-				return;
-			}
-
-			$user = $this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token"));
-			if(!$user["is_admin"]){
-				$this->response(["message" => "Access Denied!"], 200);
-				return;
-			}
-
-			$this->response(
-				$this->DepartmentModel->updateDepartment(
-					$this->input->post("department_id"),
-					isset($_POST["department_name"]) ? $this->input->post("department_name") : null,
-					isset($_POST["department_head"]) ? $this->input->post("department_head") : null
-				),
-				200
-			);
-
-		} catch(Exception $ex){
-			$this->response(["message" => $ex->getMessage()], 200);
-		}
+		$this->response(
+			$this->DepartmentModel->updateDepartment(
+				$this->input->post("department_id"),
+				isset($_POST["department_name"]) ? $this->input->post("department_name") : null,
+				isset($_POST["department_head"]) ? $this->input->post("department_head") : null
+			),
+			200
+		);
 
 	}
 

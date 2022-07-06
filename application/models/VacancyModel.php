@@ -10,7 +10,7 @@ class VacancyModel extends CI_Model {
 
 	function createVacancy($request){
 
-		$this->db->insert($this->table_name, [
+		$vacancy = [
 			"position" => $request["position"],
 			"salary" => $request["salary"],
 			"description" => $request["description"],
@@ -19,11 +19,11 @@ class VacancyModel extends CI_Model {
 			"status" => $request["status"],
 			"updated_by" => $request["employee_id"],
 			"department_id" => $request["department_id"]
-		]);
+		];
 
-		$request["id"] = $this->db->insert_id();
-
-		return $request;
+		$this->db->insert($this->table_name, $vacancy);
+		$vacancy["id"] = $this->db->insert_id();
+		return $vacancy;
 
 	}
 
@@ -35,19 +35,24 @@ class VacancyModel extends CI_Model {
 			return [];
 		}
 
-		$vacancy = $result->result_array()[0];
+		$vacancy = $result->row_array();
 
-		$updater_result = $this->db->get_where("employee", ["id" => $vacancy["updated_by"]]);
-		$vacancy["updated_by"] = $updater_result->num_rows() ? $updater_result->result_array()[0] : [];
-		$department = $this->db->get_where("department", ["id", $vacancy["department_id"]])->result_array();
-		$vacancy["department"] = sizeof($department) ? $department[0] : [];
-		return $vacancy;
+		$updated_by = $this->db->get_where("employee", ["id" => $vacancy["updated_by"]])->row_array();
+		$department = $this->db->get_where("department", ["id", $vacancy["department_id"]])->row_array();
+
+		return [
+			"detail" => $vacancy,
+			"updated_by" => $updated_by,
+			"department" => $department
+		];
 
 	}
 
 	function getVacancies($request){
 
-		$query = $this->db->select("*")->from($this->table_name);
+		$query = $this->db->select("department.name as department_name, vacancy.id, vacancy.position, vacancy.description, vacancy.salary, vacancy.start_date, vacancy.end_date, vacancy.status, vacancy.updated_by, vacancy.department_id")
+			->from($this->table_name)
+			->join("department", "$this->table_name.department_id  = department.id");
 
 		if(isset($request["status"])){
 			$query->like("status", $request["status"]);
@@ -60,11 +65,11 @@ class VacancyModel extends CI_Model {
 		}
 
 		if(isset($request["department_id"])){
-			$query->like("department_id", $request["department_id"]);
+			$query->like("vacancy.department_id", $request["department_id"]);
 		}
 
 		if(isset($request["position"])){
-			$query->like("position", $request["position"]);
+			$query->like("vacancy.position", $request["position"]);
 		}
 
 		return $query->get()->result_array();
@@ -73,7 +78,7 @@ class VacancyModel extends CI_Model {
 
 	function updateVacancy($request){
 
-		$this->db->update($this->table_name, [
+		$vacancy = [
 			"position" => $request["position"],
 			"salary" => $request["salary"],
 			"description" => $request["description"],
@@ -82,8 +87,13 @@ class VacancyModel extends CI_Model {
 			"status" => $request["status"],
 			"updated_by" => $request["updated_by"],
 			"department_id" => $request["department_id"]
-		],
-		["id" => $request["vacancy_id"]]);
+		];
+
+		$this->db->update(
+			$this->table_name,
+			$vacancy,
+			["id" => $request["vacancy_id"]]
+		);
 
 		return $request;
 

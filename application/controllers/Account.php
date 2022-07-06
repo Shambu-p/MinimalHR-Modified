@@ -1,31 +1,20 @@
 <?php
 
-require APPPATH . '/libraries/REST_Controller.php';
-use Restserver\Libraries\REST_Controller;
+require APPPATH . '/core/API_Controller.php';
 
-class Account extends REST_Controller {
+class Account extends API_Controller {
 
 	function __construct($config = 'rest') {
-		header('Access-Control-Allow-Origin: *');
 		parent::__construct($config);
 		$this->load->model("AccountModel");
-		$this->load->model("AuthModel");
 	}
 
 	function forgot_password_post(){
 
-		if(!$this->form_validation->run()){
-			$this->response([
-				"message" => validation_errors()
-			], 200);
-			return;
-		}
-
 		$account = (array) $this->AccountModel->getAccountByEmail($this->input->post("email"));
 
-		if(!sizeof($account)){
+		if(empty($account)){
 			$this->response(["message" => "account not found!!"]);
-			return;
 		}
 
 		try{
@@ -58,38 +47,12 @@ class Account extends REST_Controller {
 
 	}
 
-	function verify_account(){
-
-	}
-
-	function change_password(){
-
-	}
-
 	function change_status_post(){
 
-		if(!$this->form_validation->run()){
-			$this->response([
-				"message" => validation_errors()
-			], 200);
-			return;
-		}
+		$this->authenticate("admin", true);
 
-		$user = $this->AuthModel->checkAuth($this->authorization_token, $this->input->post("token"));
-
-		if(!$user["is_admin"]) {
-			$this->response(["message" => "access denied!"], 200);
-			return;
-		}
-
-		try{
-
-			$response = $this->AccountModel->updateAccountStatus($this->input->post("employee_id"), $this->input->post("status"));
-			$this->response($response, 200);
-
-		} catch (Exception $ex) {
-			$this->response(["message" => $ex->getMessage()], 200);
-		}
+		$response = $this->AccountModel->updateAccountStatus($this->input->post("employee_id"), $this->input->post("status"));
+		$this->response($response, 200);
 
 	}
 

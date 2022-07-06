@@ -34,8 +34,8 @@ $config = [
 			'rules' => 'required|in_list[ba,bsc,beng,llb,marts,mbiol,mcomp,meng,mmath,mphys,msci,ma,msc,mba,mphil,mres,llm,phd]'
 		],
 		[
-			'field' => 'department_id',
-			'label' => 'department_id',
+			'field' => 'employee_department',
+			'label' => 'employee_department',
 			'rules' => 'required|integer'
 		],
 		[
@@ -76,8 +76,8 @@ $config = [
 			'rules' => 'required|in_list[ba,bsc,beng,llb,marts,mbiol,mcomp,meng,mmath,mphys,msci,ma,msc,mba,mphil,mres,llm,phd]'
 		],
 		[
-			'field' => 'department_id',
-			'label' => 'department_id',
+			'field' => 'employee_department',
+			'label' => 'employee_department',
 			'rules' => 'required|integer'
 		],
 		[
@@ -168,14 +168,14 @@ $config = [
 			'rules' => 'required'
 		],
 		[
-			'field' => 'application_status',
-			'label' => 'application_status',
-			'rules' => 'in_list[pending,viewed,accepted,rejected]'
+			'field' => 'salary',
+			'label' => 'salary',
+			'rules' => 'required'
 		],
 		[
-			'field' => 'vacancy_id',
-			'label' => 'vacancy_id',
-			'rules' => 'integer'
+			'field' => 'position',
+			'label' => 'position',
+			'rules' => 'required'
 		],
 		[
 			'field' => 'department_id',
@@ -205,6 +205,11 @@ $config = [
 			'field' => 'token',
 			'label' => 'token',
 			'rules' => 'required'
+		],
+		[
+			'field' => 'application_id',
+			'label' => 'application_id',
+			'rules' => 'required|integer'
 		],
 		[
 			'field' => 'status',

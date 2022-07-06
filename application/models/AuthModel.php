@@ -20,8 +20,6 @@ class AuthModel extends CI_Model {
 		}
 
 		return (array) $result["data"];
-//		$jwt = new JWT();
-//		return json_decode($jwt->decode($token, $this->SecretKey, 'HS256'));
 
 	}
 

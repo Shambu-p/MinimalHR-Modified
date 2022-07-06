@@ -31,91 +31,51 @@ class EmployeeModel extends CI_Model {
 	 * @return array
 	 *           returns the inserted data in to the database
 	 */
-	function registerEmployee(array $request){
+	function registerEmployee(array $request) {
 
-		$this->db->insert($this->table_name, [
-			"full_name" => $request["full_name"],
-			"email" => $request["email"],
-			"profile_picture" => $request["profile_picture"],
-			"documents" => $request["documents"],
-			"salary" => $request["salary"],
-			"phone_number" => $request["phone_number"],
-			"education_level" => $request["education_level"],
-			"employee_department" => $request["department_id"],
-			"position" => $request["position"],
-			"status" => isset($request["vacancy_id"]) ? "pending" : "accepted"
-		]);
+		$this->load->library("Utils");
+		$utils = new Utils();
+		$final_array = $utils->prepare_employee_data($request);
+
+		$this->db->insert($this->table_name, $final_array["employee"]);
+		$address = $final_array["address"];
+		$final_array["address"] = [];
 
 		$employee_id = $this->db->insert_id();
 		$generated_application_number = isset($request["vacancy_id"]) ? intval($request["vacancy_id"] . $employee_id) : intval($employee_id . 0);
 
-		$this->db->set("application_number", $generated_application_number);
-		$this->db->where("id", $employee_id);
-		$this->db->update($this->table_name);
+		$this->db->update(
+			$this->table_name,
+			["application_number" => $generated_application_number],
+			["id", $employee_id]
+		);
 
-		$address = (array) json_decode($request["address"]);
-		$final_array = [
-			"employee" => [
-				"id" => $employee_id,
-				"full_name" => $request["full_name"],
-				"email" => $request["email"],
-				"profile_picture" => $request["profile_picture"],
-				"documents" => $request["documents"],
-				"salary" => $request["salary"],
-				"phone_number" => $request["phone_number"],
-				"education_level" => $request["education_level"],
-				"employee_department" => $request["department_id"],
-				"position" => $request["position"],
-				"status" => isset($request["vacancy_id"]) ? "pending" : "accepted",
-				"application_number" => $generated_application_number
-			],
-			"address" => []
-		];
+		$final_array["employee"]["id"] = $employee_id;
+		$final_array["employee"]["application_number"] = $generated_application_number;
 
-		foreach($address as $single_address){
-
+		foreach($address as $single_address) {
 			$single_address->employee_id = $employee_id;
-			$this->db->insert("address", (array) $single_address);
 			$final_array["address"][] = (array) $single_address;
-
 		}
 
-		if(!isset($request["vacancy_id"])){
+		$this->db->insert_batch("address", $final_array["address"]);
 
-			$password = $this->passwordGenerator();
-			$account = [
-				"employee_id" => $employee_id,
-				"email" => $request["email"],
-				"status" => "active",
-				"is_admin" => false,
-				"password" => password_hash($password, PASSWORD_DEFAULT)
-			];
+		if(isset($final_array["account"])) {
 
-			$this->db->insert('account', $account);
-			$dt = new DateTime();
+			$password = $final_array["account"]["password"];
+			$final_array["account"]["password"] = password_hash($password, PASSWORD_DEFAULT);
+			$final_array["account"]["employee_id"] = $employee_id;
+
+			$this->db->insert('account', $final_array["account"]);
 			$this->db->insert('eventdate', [
 				"employee_id" => $employee_id,
-				"work_start_date" => $dt->getTimestamp()
+				"work_start_date" => date("Y-m-d h:i:s")
 			]);
-			$account["password"] = $password;
-			$final_array["Account"] = $account;
+			$final_array["account"]["password"] = $password;
 
 		}
 
 		return $final_array;
-
-	}
-
-	function passwordGenerator(){
-
-		$comb = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
-		$pass = array();
-		$combLen = strlen($comb) - 1;
-		for ($i = 0; $i < 8; $i++) {
-			$n = rand(0, $combLen);
-			$pass[] = $comb[$n];
-		}
-		return implode($pass);
 
 	}
 
@@ -135,15 +95,19 @@ class EmployeeModel extends CI_Model {
 			$condition["status"] = $request["application_status"];
 		}
 
+		if(isset($request["salary"])){
+			$condition["salary"] = $request["salary"];
+		}
+
 		if(isset($request["department_id"])){
-			$condition["department_id"] = $request["department_id"];
+			$condition["employee_department"] = $request["department_id"];
 		}
 
-		if(isset($request["vacancy_id"])){
-			$condition["vacancy_id"] = $request["vacancy_id"];
+		if(isset($request["position"])){
+			$condition["position"] = $request["position"];
 		}
 
-		return (array) $this->db->get_where($this->table_name, $condition)->result_array();
+		return $this->db->get_where($this->table_name, $condition)->result_array();
 
 	}
 
@@ -189,7 +153,7 @@ class EmployeeModel extends CI_Model {
 	 */
 	function updateEmployee(array $request) {
 
-		$this->db->update($this->table_name, [
+		$set_array = [
 			"full_name" => $request["full_name"],
 			"email" => $request["email"],
 			"salary" => $request["salary"],
@@ -197,15 +161,12 @@ class EmployeeModel extends CI_Model {
 			"education_level" => $request["education_level"],
 			"employee_department" => $request["department_id"],
 			"position" => $request["position"]
-		], [
-			"id" => $request["id"]
-		]);
+		];
 
-		$this->db->update($this->table_name, [
-			"email" => $request["email"]
-		], [
-			"employee_id" => $request["id"]
-		]);
+		$this->db->update(
+			$this->table_name,
+			$set_array, ["id" => $request["id"]]
+		);
 
 	}
 
@@ -217,27 +178,30 @@ class EmployeeModel extends CI_Model {
 	 *            application status
 	 * @return array
 	 */
-	function updateApplicationStatus(int $id, String $status){
+	function updateApplicationStatus(int $id, String $status) {
 
 		$employee = (array) $this->getEmployee($id);
 		$final_array = [];
 
-		if(!sizeof($employee)){
+		if(empty($employee)){
 			return [];
 		}
 
-		$this->db->update($this->table_name, [
-			"status" => $status
-		], [
-			"employee_id" => $id
-		]);
+		$this->db->update(
+			$this->table_name,
+			["status" => $status],
+			["id" => $id]
+		);
 
 		$employee["status"] = $status;
-		$final_array["employee"] = $final_array;
+		$final_array["employee"] = $employee;
+
+		$this->load->library("Utils");
+		$utils = new Utils();
 
 		if($status == "accepted") {
 
-			$password = $this->passwordGenerator();
+			$password = $utils->passwordGenerator();
 			$final_array["account"] = [
 				"employee_id" => $id,
 				"email" => $employee["email"],
@@ -247,13 +211,12 @@ class EmployeeModel extends CI_Model {
 			];
 
 
-			$this->db->insert('account', $final_array);
-
-			$dt = new DateTime();
+			$this->db->insert('account', $final_array["account"]);
+			$final_array["account"]["password"] = $password;
 
 			$this->db->insert('eventdate', [
 				"employee_id" => $this->db->insert_id(),
-				"start_working_date" => $dt->getTimestamp()
+				"work_start_date" => date("Y-M-d h:i:s")
 			]);
 
 		}
@@ -264,14 +227,22 @@ class EmployeeModel extends CI_Model {
 
 	function byApplicationNumber(int $application_number){
 
-		$application = $this->db->get_where($this->table_name, ["application_number" => $application_number])->result_array();
-		if(!sizeof($application)){
+		$application = $this->db->get_where(
+			$this->table_name,
+			["application_number" => $application_number]
+		)->row_array();
+		if(empty($application)){
 			return [];
 		}
 
+		$address = $this->db->get_where(
+			"address",
+			["employee_id" => $application["id"]]
+		)->result_array();
+
 		return [
-			"detail" => $application[0],
-			"address" => $this->db->get_where("address", ["employee_id" => $application[0]["id"]])->result_array()
+			"detail" => $application,
+			"address" => $address
 		];
 
 	}
