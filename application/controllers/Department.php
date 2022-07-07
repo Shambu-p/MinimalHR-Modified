@@ -79,6 +79,7 @@ class Department extends API_Controller {
 			$this->response([], 200);
 		}
 
+		$this->load->model("EmployeeModel");
 		if($department["department_head"]){
 			$head = $this->EmployeeModel->getEmployee($department["department_head"]);
 			$department["department_head"] = $head["full_name"] ?? "";

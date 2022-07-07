@@ -239,12 +239,12 @@ $config = [
 		[
 			'field' => 'name',
 			'label' => 'name',
-			'rules' => 'required|regex_match[/(\w\s?)+/]|max_length[100]|min_length[10]'
+			'rules' => 'required|regex_match[/(\w\s?)+/]|max_length[100]|min_length[5]'
 		],
 		[
 			'field' => 'department_head',
 			'label' => 'department_head',
-			'rules' => 'integer|max_length[100]|min_length[10]'
+			'rules' => 'integer'
 		]
 	],
 	'Department/update' => [
