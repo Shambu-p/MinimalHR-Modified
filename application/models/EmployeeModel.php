@@ -132,9 +132,11 @@ class EmployeeModel extends CI_Model {
 	 * 			the new employee profile picture file name
 	 */
 	function changeProfilePicture(int $id, String $profile_picture){
-		$this->db->update($this->table_name, [
-			"profile_picture" => $profile_picture,
-		],["id" => $id]);
+		$this->db->update(
+			$this->table_name,
+			["profile_picture" => $profile_picture,],
+			["id" => $id]
+		);
 	}
 
 	/**

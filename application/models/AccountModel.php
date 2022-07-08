@@ -63,38 +63,32 @@ class AccountModel extends CI_Model {
 			return $account;
 		}
 
-		$this->db->update($this->table_name, [
-			"status" => $status
-		], [
-			"employee_id" => $id
-		]);
+		$this->db->update(
+			$this->table_name,
+			["status" => $status],
+			["employee_id" => $id]
+		);
 
 		if($status == "suspended"){
 
-			$dt = new DateTime();
-
 			$this->db->update("eventdate", [
-				"prohibition_start_date" => $dt->getTimestamp()
+				"prohibition_start_date" => date("Y-M-d h:i:s")
 			], [
 				"employee_id" => $id
 			]);
 
 		}else if($status == "active"){
 
-			$dt = new DateTime();
-
 			$this->db->update("eventdate", [
-				"prohibition_end_date" => $dt->getTimestamp()
+				"prohibition_end_date" => date("Y-M-d h:i:s")
 			], [
 				"employee_id" => $id
 			]);
 
 		}else {
 
-			$dt = new DateTime();
-
 			$this->db->update("eventdate", [
-				"termination_date" => $dt->getTimestamp()
+				"termination_date" => date("Y-M-d h:i:s")
 			], [
 				"employee_id" => $id
 			]);

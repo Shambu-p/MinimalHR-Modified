@@ -94,29 +94,14 @@ class Employees extends API_Controller {
 
 		$this->authenticate("admin", true);
 
-		$this->load->library("upload", [
-			'upload_path' => './uploads/profile_pictures',
-			'file_name' => 'profile_pic_' . $this->auth_user["email"] . '.png',
-			'allowed_types' => ['jpg', 'png', 'ico', 'jpeg'],
-			'max_size' => 1000,
-			'overwrite' => TRUE
-		]);
-
-		if(!$this->upload->do_upload('profile_picture')) {
-			$this->response(
-				["message" => "image file: " . $this->upload->display_errors()],
-				200
-			);
-			return;
-		}
-
-		$profile_upload = $this->upload->data();
+		$file_name = 'profile_pic_' . $this->auth_user["email"] . '.png';
+		$profile_upload = $this->my_upload($file_name, 'profile_picture', TRUE);
 		$this->EmployeeModel->updateProfilePicture($this->auth_user["employee_id"], $profile_upload["file_name"]);
 		$this->response(["profile_picture" => $profile_upload['file_name']], 200);
 
 	}
 
-	function suspend_user(){}
+	function change_status(){}
 
 	function delete_user(){}
 
@@ -236,40 +221,11 @@ class Employees extends API_Controller {
 
 	function apply_and_register(){
 
-		$this->load->library('upload', [
-			'upload_path' => './uploads/profile_pictures',
-			'file_name' => 'profile_pic_' . $this->input->post("email") . '.png',
-			'allowed_types' => ['jpg', 'png', 'ico', 'jpeg'],
-			'max_size' => 1000
-		]);
+		$profile_file_name = 'profile_pic_' . $this->input->post("email") . '.png';
+		$document_file_name = 'application_doc_'.$this->input->post("email").'.zip';
 
-		if(!$this->upload->do_upload('profile_picture')){
-			$this->response(
-				["message" => "image file: " . $this->upload->display_errors()],
-				200
-			);
-			return;
-		}else{
-			$profile_upload = $this->upload->data();
-		}
-
-		$this->upload = null;
-		$this->load->library('upload', [
-			'upload_path' => './uploads/documents',
-			'file_name' => 'application_doc_'.$this->input->post("email").'.zip',
-			'allowed_types' => ['zip'],
-			'max_size' => 1000
-		]);
-
-		if(!$this->upload->do_upload('documents')){
-			$this->response(
-				["message" => "document file: " . $this->upload->display_errors()],
-				200
-			);
-			return;
-		}else{
-			$document_upload = $this->upload->data();
-		}
+		$profile_upload = $this->my_upload($profile_file_name, 'profile_picture');
+		$document_upload = $this->my_upload($document_file_name, 'documents');
 
 		$requests = $this->input->post();
 		$requests["profile_picture"] = $profile_upload["file_name"];

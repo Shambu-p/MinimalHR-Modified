@@ -123,28 +123,6 @@ $config = [
 			'field' => 'token',
 			'label' => 'token',
 			'rules' => 'required'
-		],
-		[
-			'field' => 'employee_id',
-			'label' => 'employee_id',
-			'rules' => 'required|integer'
-		]
-	],
-	'Employees/change_status' => [
-		[
-			'field' => 'token',
-			'label' => 'token',
-			'rules' => 'required'
-		],
-		[
-			'field' => 'employee_id',
-			'label' => 'employee_id',
-			'rules' => 'required|integer'
-		],
-		[
-			'field' => 'status',
-			'label' => 'status',
-			'rules' => 'required|integer'
 		]
 	],
 	'Employees/profile_picture' => [
@@ -490,6 +468,23 @@ $config = [
 			'label' => 'email',
 			'rules' => 'required|valid_email|max_length[50]'
 		]
-	]
+	],
+	'Account/change_status' => [
+		[
+			'field' => 'token',
+			'label' => 'token',
+			'rules' => 'required'
+		],
+		[
+			'field' => 'employee_id',
+			'label' => 'employee_id',
+			'rules' => 'required|integer'
+		],
+		[
+			'field' => 'status',
+			'label' => 'status',
+			'rules' => 'required|in_list[active,suspended,deactive]'
+		]
+	],
 
 ];

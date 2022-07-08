@@ -73,4 +73,43 @@ class API_Controller extends REST_Controller {
 
 	}
 
+	function my_upload($file_name, $field_name, $overwriting = FALSE){
+
+		$parameters = $field_name == 'documents' ? [
+			'upload_path' => './uploads/documents',
+			'file_name' => $file_name,
+			'allowed_types' => ['zip']
+		] : [
+			'upload_path' => './uploads/profile_pictures',
+			'file_name' => $file_name,
+			'allowed_types' => ['jpg', 'png', 'ico', 'jpeg']
+		];
+
+		$parameters['overwrite'] = $overwriting;
+		$parameters['max_size'] = 1000;
+
+		$upload_data = $this->upload_file($parameters, $field_name);
+
+		$this->upload = null;
+
+		return $upload_data;
+
+	}
+
+	function upload_file($parameters, $field_name){
+
+		$this->upload = null;
+		$this->load->library('upload', $parameters);
+
+		if(!$this->upload->do_upload($field_name)){
+			$this->response(
+				["message" => $this->upload->display_errors()],
+				200
+			);
+		}
+
+		return $this->upload->data();
+
+	}
+
 }
