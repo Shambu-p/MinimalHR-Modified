@@ -469,6 +469,18 @@ $config = [
 			'rules' => 'required|valid_email|max_length[50]'
 		]
 	],
+	'Account/verify_user' => [
+		[
+			'field' => 'employee_id',
+			'label' => 'employee_id',
+			'rules' => 'required|integer'
+		],
+		[
+			'field' => 'verification_code',
+			'label' => 'verification_code',
+			'rules' => 'required'
+		]
+	],
 	'Account/change_status' => [
 		[
 			'field' => 'token',
@@ -486,5 +498,27 @@ $config = [
 			'rules' => 'required|in_list[active,suspended,deactive]'
 		]
 	],
+	'Account/recover_password' => [
+		[
+			'field' => 'employee_id',
+			'label' => 'employee_id',
+			'rules' => 'required|integer'
+		],
+		[
+			'field' => 'verification_code',
+			'label' => 'verification_code',
+			'rules' => 'required'
+		],
+		[
+			'field' => 'new_password',
+			'label' => 'new_password',
+			'rules' => 'required|max_length[20]|min_length[8]'
+		],
+		[
+			'field' => 'confirm_password',
+			'label' => 'confirm_password',
+			'rules' => 'required|max_length[20]|min_length[8]'
+		],
+	]
 
 ];

@@ -18,7 +18,7 @@ class AccountModel extends CI_Model {
 	 * @return array
 	 * @throws Exception
 	 */
-	function changePassword($employee_id, $old_password, $new_password){
+	function changePassword($employee_id, $new_password, $old_password = null){
 
 		$account = $this->db->get_where(
 			$this->table_name,
@@ -29,7 +29,7 @@ class AccountModel extends CI_Model {
 			throw new Exception("account not found");
 		}
 
-		if(!password_verify($old_password, $account["password"])){
+		if($old_password && !password_verify($old_password, $account["password"])) {
 			throw new Exception("incorrect password");
 		}
 
@@ -137,10 +137,7 @@ class AccountModel extends CI_Model {
 	 * @return array|mixed|object
 	 */
 	function getAccount(int $id) {
-
-		$result = $this->db->get_where($this->table_name, ['employee_id' => $id])->result_array();
-		return (sizeof($result) > 0) ? $result[0] : [];
-
+		return $this->db->get_where($this->table_name, ['employee_id' => $id])->row_array();
 	}
 
 	function accountDetail(int $id){
@@ -176,6 +173,31 @@ class AccountModel extends CI_Model {
 		}
 
 		return (array) $query->get()->result();
+
+	}
+
+	function setVerificationCode($employee_id, $verification_code){
+
+		$this->db->update(
+			$this->table_name,
+			["recovery_token" => password_hash($verification_code, PASSWORD_DEFAULT)],
+			["employee_id" => $employee_id]
+		);
+
+	}
+
+	function verifyCode($employee_id, $verification_code){
+
+		$user = $this->getAccount($employee_id);
+
+		if(empty($user) && password_verify($verification_code, $user["recovery_token"])) {
+
+			$user["recovery_token"] = $verification_code;
+			return $user;
+
+		}
+
+		return [];
 
 	}
 

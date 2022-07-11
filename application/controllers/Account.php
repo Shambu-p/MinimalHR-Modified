@@ -4,8 +4,8 @@ require APPPATH . '/core/API_Controller.php';
 
 class Account extends API_Controller {
 
-	function __construct($config = 'rest') {
-		parent::__construct($config);
+	function __construct() {
+		parent::__construct();
 		$this->load->model("AccountModel");
 	}
 
@@ -20,29 +20,35 @@ class Account extends API_Controller {
 		try{
 
 			$this->load->library('email');
-			$this->email->initialize([
-				"protocol" => "smtp",
-				"smtp_host" => "smtp.gmail.com",
-				"smtp_user" => "abnetkebede075@gmail.com",
-				"smtp_pass" => "Shambel4419/09?",
-				"smtp_port" => 465
-			]);
+			$this->load->library('Utils');
+			$utils = new Utils();
 
-			$this->email->from('babbikebede21@gmail.com', 'Shambel');
-			$this->email->to($account["email"]);
+			$verification_code = $utils->passwordGenerator();
+			$mail_object = $utils->recovery_pin_message($this->email, $verification_code, $this->input->post("email"));
 
-//			$this->email->to('abnetkebede075@gmail.com');
-//			$this->email->cc('another@another-example.com');
-//			$this->email->bcc('them@their-example.com');
+			if(!$mail_object->send(true)) {
+				$this->response(["message" => "email not sent!"], 200);
+			}
 
-			$this->email->subject('Account Verification');
-			$this->email->message('Testing account verification');
-
-			$this->email->send();
+			$this->AccountModel->setVerificationCode($verification_code);
 			$this->response($account, 200);
 
 		} catch (Exception $ex){
 			$this->response(["message" => $ex->getMessage()], 200);
+		}
+
+	}
+
+	function verify_user_post(){
+
+		$user_code = $this->input->post("verification_code");
+		$user = $this->input->post("employee_id");
+		$verification = $this->AccountModel->verifyCode($user, $user_code);
+
+		if(empty($verification)) {
+			$this->response(["message" => "verification failed!!"], 200);
+		}else{
+			$this->response($verification, 200);
 		}
 
 	}
@@ -53,6 +59,39 @@ class Account extends API_Controller {
 
 		$response = $this->AccountModel->updateAccountStatus($this->input->post("employee_id"), $this->input->post("status"));
 		$this->response($response, 200);
+
+	}
+
+	function recover_password_post(){
+
+		$verification = $this->AccountModel->verifyCode(
+			$this->input->post("employee_id"),
+			$this->input->post("verification_code")
+		);
+
+		if(empty($verification)) {
+			$this->response(["message" => "verification failed!!"], 200);
+		}
+
+		if($this->input->post("new_password") != $this->input->post("confirm_password")){
+			$this->response([
+				"message" => "password confirmation doesn't match with the new password"
+			], 200);
+		}
+
+		try{
+
+			$this->response(
+				$this->AccountModel->changePassword(
+					$this->input->post("employee_id"),
+					$this->input->post("new_password")
+				),
+				200
+			);
+
+		} catch (Exception $ex){
+			$this->response(["message" => $ex->getMessage()], 200);
+		}
 
 	}
 

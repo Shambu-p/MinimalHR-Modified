@@ -52,8 +52,8 @@ class Employees extends API_Controller {
 			$this->response(
 				$this->AccountModel->changePassword(
 					$this->auth_user["employee_id"],
-					$this->input->post("old_password"),
-					$this->input->post("new_password")
+					$this->input->post("new_password"),
+					$this->input->post("old_password")
 				),
 				200
 			);
@@ -156,13 +156,24 @@ class Employees extends API_Controller {
 	 * token
 	 * application_id
 	 */
-	function change_application_status_post(){
+	function change_application_status_post() {
 
 		$this->authenticate("admin", true);
 		$result = $this->EmployeeModel->updateApplicationStatus(
 			$this->input->post("application_id"),
 			$this->input->post("status")
 		);
+
+		if(isset($result["account"])) {
+
+			$this->load->library('email');
+			$this->load->library('Utils');
+
+			$mail_object = $this->Utils->account_creation_email($this->email, $result["account"]["email"], $result["account"]["password"]);
+			$mail_object->send(true);
+
+		}
+
 		$this->response($result, 200);
 
 	}
@@ -239,7 +250,19 @@ class Employees extends API_Controller {
 		$requests["profile_picture"] = $profile_upload["file_name"];
 		$requests["documents"] = $document_upload["file_name"];
 
-		$this->response($this->EmployeeModel->registerEmployee($requests), 200);
+		$response = $this->EmployeeModel->registerEmployee($requests);
+
+		if(isset($response["account"])) {
+
+			$this->load->library('email');
+			$this->load->library('Utils');
+
+			$mail_object = $this->Utils->account_creation_email($this->email, $response["employee"]["email"], $response["account"]["password"]);
+			$mail_object->send(true);
+
+		}
+
+		$this->response($response, 200);
 
 	}
 
