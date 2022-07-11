@@ -64,29 +64,37 @@ class Employees extends API_Controller {
 
 	}
 
+	/**
+	 * responds with profile picture image file content of and employee record
+	 * @param $employee_id
+	 */
 	function profile_picture_get($employee_id){
 
 		$employee_detail = $this->EmployeeModel->getEmployee($employee_id);
 
-		if(!sizeof($employee_detail)){
+		if(empty($employee_detail)){
 			$this->response(["message" => "employee not found"], 200);
-			return;
 		}
 
 		$file = "./uploads/profile_pictures/".$employee_detail["profile_picture"];
-		if (file_exists($file)) {
-			header('Content-Description: File Transfer');
-			header('Content-Type: image/png');
-			// change inline to attachment if you want to download it instead
-			header('Content-Disposition: inline; filename="'.basename($file).'"');
-			header('Expires: 0');
-			header('Cache-Control: must-revalidate');
-			header('Pragma: public');
-			header('Content-Length: ' . filesize($file));
-			readfile($file);
+		$this->respond_file($file, 'image/png');
+
+	}
+
+	/**
+	 * responds with applicant document zip file content of an employee record
+	 * @param $employee_id
+	 */
+	function document_get($employee_id){
+
+		$employee_detail = $this->EmployeeModel->getEmployee($employee_id);
+
+		if(empty($employee_detail)){
+			$this->response(["message" => "employee not found"], 200);
 		}
 
-		$this->response(["message" => "cannot read image"], 200);
+		$file_path = "./uploads/documents/".$employee_detail["documents"];
+		$this->respond_file($file_path, 'application/zip');
 
 	}
 
@@ -96,7 +104,7 @@ class Employees extends API_Controller {
 
 		$file_name = 'profile_pic_' . $this->auth_user["email"] . '.png';
 		$profile_upload = $this->my_upload($file_name, 'profile_picture', TRUE);
-		$this->EmployeeModel->updateProfilePicture($this->auth_user["employee_id"], $profile_upload["file_name"]);
+		$this->EmployeeModel->changeProfilePicture($this->auth_user["employee_id"], $profile_upload["file_name"]);
 		$this->response(["profile_picture" => $profile_upload['file_name']], 200);
 
 	}

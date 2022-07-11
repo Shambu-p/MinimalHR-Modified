@@ -73,6 +73,17 @@ class API_Controller extends REST_Controller {
 
 	}
 
+	/**
+	 * simple method only for this project
+	 *
+	 * @param $file_name
+	 * 		file base name
+	 * @param $field_name
+	 * 		the name of field which the file is being uploaded by
+	 * @param false $overwriting
+	 * 		if there already exist file and you want overwrite it pass true or else false
+	 * @return array|mixed|null
+	 */
 	function my_upload($file_name, $field_name, $overwriting = FALSE){
 
 		$parameters = $field_name == 'documents' ? [
@@ -96,6 +107,18 @@ class API_Controller extends REST_Controller {
 
 	}
 
+	/**
+	 * helps with file uploading
+	 * you only need to provide the parameter and the field name
+	 * after that it will the uploading using upload library and
+	 * if there is problem while uploading the file then it will
+	 * respond using REST_Controller response method.
+	 * @param $parameters
+	 * 		upload library configuration parameters
+	 * @param $field_name
+	 * 		the name of the field which the file is passed by
+	 * @return array|mixed|null
+	 */
 	function upload_file($parameters, $field_name){
 
 		$this->upload = null;
@@ -109,6 +132,32 @@ class API_Controller extends REST_Controller {
 		}
 
 		return $this->upload->data();
+
+	}
+
+	/**
+	 * respond with file content of the file found on file path
+	 * which is passed on parameter named file
+	 * @param $file
+	 *        file address of the file to be downloaded
+	 * @param $file_type
+	 * 		  extension of file, or file content type
+	 * 		  example image/png, image/jpg, application/pdf, application/json, application/zip
+	 */
+	function respond_file($file, $file_type){
+
+		if (file_exists($file)) {
+			header('Content-Description: File Transfer');
+			header('Content-Type: '.$file_type);
+			header('Content-Disposition: inline; filename="'.basename($file).'"');
+			header('Expires: 0');
+			header('Cache-Control: must-revalidate');
+			header('Pragma: public');
+			header('Content-Length: ' . filesize($file));
+			readfile($file);
+		}
+
+		$this->response(["message" => "cannot read file"], 200);
 
 	}
 
