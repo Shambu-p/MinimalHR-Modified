@@ -63,7 +63,7 @@ class Utils {
 
 		$email_object->initialize($config);
 
-		$email_object->from($from, 'Ab');
+		$email_object->from($from, 'My Hr. from Appdiv Systems');
 		$email_object->to($to);
 
 		if(!empty($recipient)){

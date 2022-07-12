@@ -37,8 +37,6 @@ class Employees extends API_Controller {
 	 */
 	function change_password_post(){
 
-		$this->authenticate("admin", true);
-
 		if($this->input->post("new_password") != $this->input->post("confirm_password")){
 			$this->response([
 				"message" => "password confirmation doesn't match with the new password"
@@ -123,7 +121,6 @@ class Employees extends API_Controller {
 	 */
 	function employee_detail_post(){
 
-		$this->authenticate("admin", true);
 		$this->load->model("AccountModel");
 		$this->response(
 			$this->AccountModel->accountDetail(
@@ -168,8 +165,9 @@ class Employees extends API_Controller {
 
 			$this->load->library('email');
 			$this->load->library('Utils');
+			$utils = new Utils();
 
-			$mail_object = $this->Utils->account_creation_email($this->email, $result["account"]["email"], $result["account"]["password"]);
+			$mail_object = $utils->account_creation_email($this->email, $result["account"]["email"], $result["account"]["password"]);
 			$mail_object->send(true);
 
 		}
@@ -256,8 +254,9 @@ class Employees extends API_Controller {
 
 			$this->load->library('email');
 			$this->load->library('Utils');
+			$utils = new Utils();
 
-			$mail_object = $this->Utils->account_creation_email($this->email, $response["employee"]["email"], $response["account"]["password"]);
+			$mail_object = $utils->account_creation_email($this->email, $response["employee"]["email"], $response["account"]["password"]);
 			$mail_object->send(true);
 
 		}

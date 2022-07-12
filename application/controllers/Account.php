@@ -17,20 +17,24 @@ class Account extends API_Controller {
 			$this->response(["message" => "account not found!!"]);
 		}
 
-		try{
+		try {
 
 			$this->load->library('email');
 			$this->load->library('Utils');
 			$utils = new Utils();
 
 			$verification_code = $utils->passwordGenerator();
-			$mail_object = $utils->recovery_pin_message($this->email, $verification_code, $this->input->post("email"));
+			$this->AccountModel->setVerificationCode($account["employee_id"], $verification_code);
+
+			$mail_object = $utils->recovery_pin_message(
+				$this->email,
+				$verification_code,
+				$this->input->post("email")
+			);
 
 			if(!$mail_object->send(true)) {
 				$this->response(["message" => "email not sent!"], 200);
 			}
-
-			$this->AccountModel->setVerificationCode($verification_code);
 			$this->response($account, 200);
 
 		} catch (Exception $ex){
