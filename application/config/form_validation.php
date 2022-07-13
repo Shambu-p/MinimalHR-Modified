@@ -365,7 +365,7 @@ $config = [
 		]
 	],
 
-	'Auth/login' => [
+	'Employees/login' => [
 		[
 			'field' => 'email',
 			'label' => 'email',
@@ -377,7 +377,7 @@ $config = [
 			'rules' => 'required|max_length[20]|min_length[8]'
 		]
 	],
-	'Auth/authorization' => [
+	'Employees/authorization' => [
 		[
 			'field' => 'token',
 			'label' => 'token',
@@ -385,7 +385,7 @@ $config = [
 		]
 	],
 
-	'Address/add_address' => [
+	'Employees/add_address' => [
 		[
 			'field' => 'token',
 			'label' => 'token',
@@ -412,7 +412,7 @@ $config = [
 			'rules' => 'required|trim|regex_match[/(\+2519|09)\d{8}/]|max_length[14]'
 		],
 	],
-	'Address/edit_address' => [
+	'Employees/edit_address' => [
 		[
 			'field' => 'token',
 			'label' => 'token',
@@ -444,7 +444,7 @@ $config = [
 			'rules' => 'required|trim|regex_match[/(\+2519|09)\d{8}/]|max_length[14]'
 		],
 	],
-	'Address/delete_address' => [
+	'Employees/delete_address' => [
 		[
 			'field' => 'token',
 			'label' => 'token',
@@ -462,14 +462,14 @@ $config = [
 		]
 	],
 
-	'Account/forgot_password' => [
+	'Employees/forgot_password' => [
 		[
 			'field' => 'email',
 			'label' => 'email',
 			'rules' => 'required|valid_email|max_length[50]'
 		]
 	],
-	'Account/verify_user' => [
+	'Employees/verify_user' => [
 		[
 			'field' => 'employee_id',
 			'label' => 'employee_id',
@@ -481,7 +481,7 @@ $config = [
 			'rules' => 'required'
 		]
 	],
-	'Account/change_status' => [
+	'Employees/change_status' => [
 		[
 			'field' => 'token',
 			'label' => 'token',
@@ -498,7 +498,7 @@ $config = [
 			'rules' => 'required|in_list[active,suspended,deactive]'
 		]
 	],
-	'Account/recover_password' => [
+	'Employees/recover_password' => [
 		[
 			'field' => 'employee_id',
 			'label' => 'employee_id',

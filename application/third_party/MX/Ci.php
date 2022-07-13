@@ -36,8 +36,8 @@ require_once dirname(__FILE__).'/Config.php';
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  **/
-class CI {
-
+class CI
+{
 	public static $APP;
 	
 	public function __construct() {
